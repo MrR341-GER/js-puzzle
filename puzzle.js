@@ -13,13 +13,10 @@ class SVG {
             this.svg = this.createSVG();
             document.body.appendChild(svgVar.svg);
             document.onmouseup = function (e) {
+                svgVar.movingPuzzle.style.filter = "brightness(0.8)";
                 svgVar.movingPuzzle = null;
             };
         }
-    }
-
-    calcSize() {
-
     }
 
     createSVG() {
@@ -63,6 +60,7 @@ class SVG {
                 path.offsetX = 0;
                 path.offsetY = 0;
                 path.onmousedown = (e) => {
+                    path.style.filter = "brightness(1)";
                     this.movingPuzzle = path;
                     let tile = path.getBoundingClientRect();
                     let { x, y } = this.svg.getBoundingClientRect();
@@ -70,26 +68,27 @@ class SVG {
                     this.offsetY = ((e.clientY - y) / tile["height"]) + this.strokeWidth - path.offsetY;
                     svg.appendChild(path);
                 };
+                path.onmouseout = (e) => {
+                    path.style.filter = "brightness(1)";
+                }
+                path.onmouseover = (e) => {
+                    path.style.filter = "brightness(0.8)";
+                }
                 svg.appendChild(path);
+            }
+        }
+        document.onmousemove = (e) => {
+            if (svgVar.movingPuzzle) {
+                let tile = svgVar.movingPuzzle.getBoundingClientRect();
+                let { x, y, width, height } = svgVar.svg.getBoundingClientRect();
+                let newX = ((e.clientX - x) / tile["width"]) - svgVar.offsetX;
+                let newY = ((e.clientY - y) / tile["height"]) - svgVar.offsetY;
+                svgVar.movingPuzzle.setAttribute("transform", `translate(${newX} ${newY})`);
+                svgVar.movingPuzzle.offsetX = newX
+                svgVar.movingPuzzle.offsetY = newY
             }
         }
         return svg;
     }
+
 }
-
-//let svgVar = new SVG(31, 0, 0.005, './carinanebel.png');
-let svgVar = new SVG(5, 0, 0.005, './stephans-quintett.jpg');
-
-document.onmousemove = (e) => {
-    if (svgVar.movingPuzzle) {
-        let tile = svgVar.movingPuzzle.getBoundingClientRect();
-        let { x, y, width, height } = svgVar.svg.getBoundingClientRect();
-        let newX = ((e.clientX - x) / tile["width"]) - svgVar.offsetX;
-        let newY = ((e.clientY - y) / tile["height"]) - svgVar.offsetY;
-        svgVar.movingPuzzle.setAttribute("transform", `translate(${newX} ${newY})`);
-        svgVar.movingPuzzle.offsetX = newX
-        svgVar.movingPuzzle.offsetY = newY
-    }
-}
-
-

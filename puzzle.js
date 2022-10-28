@@ -11,10 +11,10 @@ class SVG {
         this.svg = null;
         this.image.onload = () => {
             this.svg = this.createSVG();
-            document.body.appendChild(svgVar.svg);
-            document.onmouseup = function (e) {
-                svgVar.movingPuzzle.style.filter = "brightness(0.8)";
-                svgVar.movingPuzzle = null;
+            document.body.appendChild(this.svg);
+            document.onmouseup = () => {
+                this.movingPuzzle.style.filter = "brightness(0.8)";
+                this.movingPuzzle = null;
             };
         }
     }
@@ -78,14 +78,14 @@ class SVG {
             }
         }
         document.onmousemove = (e) => {
-            if (svgVar.movingPuzzle) {
-                let tile = svgVar.movingPuzzle.getBoundingClientRect();
-                let { x, y, width, height } = svgVar.svg.getBoundingClientRect();
-                let newX = ((e.clientX - x) / tile["width"]) - svgVar.offsetX;
-                let newY = ((e.clientY - y) / tile["height"]) - svgVar.offsetY;
-                svgVar.movingPuzzle.setAttribute("transform", `translate(${newX} ${newY})`);
-                svgVar.movingPuzzle.offsetX = newX
-                svgVar.movingPuzzle.offsetY = newY
+            if (this.movingPuzzle) {
+                let tile = this.movingPuzzle.getBoundingClientRect();
+                let { x, y } = this.svg.getBoundingClientRect();
+                let newX = ((e.clientX - x) / tile["width"]) - this.offsetX;
+                let newY = ((e.clientY - y) / tile["height"]) - this.offsetY;
+                this.movingPuzzle.setAttribute("transform", `translate(${newX} ${newY})`);
+                this.movingPuzzle.offsetX = newX
+                this.movingPuzzle.offsetY = newY
             }
         }
         return svg;

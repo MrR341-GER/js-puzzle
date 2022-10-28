@@ -13,8 +13,10 @@ class SVG {
             this.svg = this.createSVG();
             document.body.appendChild(this.svg);
             document.onmouseup = () => {
-                this.movingPuzzle.style.filter = "brightness(0.8)";
-                this.movingPuzzle = null;
+                if (this.movingPuzzle) {
+                    this.movingPuzzle.style.filter = "brightness(0.8)";
+                    this.movingPuzzle = null;
+                }
             };
         }
     }

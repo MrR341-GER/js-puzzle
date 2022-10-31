@@ -13,7 +13,6 @@ class Puzzle
         this.ratio = null
         this.movingPuzzle = null;
         this.svg = null;
-        this.neededViewBox = null;
         this.image.onload = () =>
         {
             this.svg = this.createSVG();

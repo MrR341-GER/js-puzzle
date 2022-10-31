@@ -81,6 +81,7 @@ class Puzzle
         this.svg.appendChild(style);
         let defs = document.createElementNS(NS, "defs");
         defs.innerHTML = `
+        <clipPath id="clip"><rect x="0" y="0" height="1" width="1" / ></clipPath>
         <pattern id="img1" patternUnits="userSpaceOnUse" width="${this.col}" height="${this.row}">
             <image href="${this.image.src}" x="0" y="0"  width="${this.col}" height="${this.row}"></image>
         </pattern>`;
@@ -90,9 +91,17 @@ class Puzzle
             for (let x = 0; x < this.col; x++)
             {
                 let path = document.createElementNS(NS, 'path');
+                let clipPath = document.createElementNS(NS, 'clipPath');
+                clipPath.setAttribute("id", `clip${y + "-" + x}`);
+                clipPath.innerHTML = `
+                <rect x="${x}" y="${y}" height="1" width="1" / >
+                `;
+                
+                defs.appendChild(clipPath);
                 path.setAttribute("d", `M ${x} ${y} l 1 0 l 0 1 l -1 0 z`);
                 path.setAttribute("stroke-width", this.strokeWidth);
                 path.setAttribute("fill", "url(#img1)");
+                path.setAttribute("clip-path", `url(#clip${y + "-" + x})`);
                 path.offsetX = 0;
                 path.offsetY = 0;
                 path.onmousedown = (e) =>

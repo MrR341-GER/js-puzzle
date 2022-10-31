@@ -2,6 +2,7 @@ class Puzzle {
     constructor(row, col, strokeWidth, imagePath) {
         this.row = row;
         this.col = col;
+        this.greater;
         this.strokeWidth = strokeWidth;
         this.image = new Image();
         this.image.src = imagePath;
@@ -26,16 +27,18 @@ class Puzzle {
             if (this.row == 0 && this.col == 0) {
                 this.col = 10;
                 this.row = 10;
-                var greater = this.row;
+                this.greater = this.row;
+                this.greater = this.row;
             } else {
-                var greater = this.col < this.row ? this.row : this.col;
+                this.greater = this.col < this.row ? this.row : this.col;
+                this.greater = this.col < this.row ? this.row : this.col;
             }
             if (this.image.width < this.image.height) {
-                this.col = Math.round(this.image.width / (this.image.height / greater));
-                this.row = greater
+                this.col = Math.round(this.image.width / (this.image.height / this.greater));
+                this.row = this.greater
             } else {
-                this.row = Math.round(this.image.height / (this.image.width / greater));
-                this.col = greater;
+                this.row = Math.round(this.image.height / (this.image.width / this.greater));
+                this.col = this.greater;
             }
             //console.log(this.row);
             //console.log(this.col);
@@ -45,16 +48,18 @@ class Puzzle {
         const neededViewBox = {"x": -this.strokeWidth, "y": -this.strokeWidth, "height": this.col + this.strokeWidth * 2, "width": this.row + this.strokeWidth * 2};
 
         var wantedViewBox = (neededViewBox) => {
-            var height = window.innerHeight / window.innerWidth * neededViewBox["height"];
-            var width = window.innerHeight / window.innerWidth * neededViewBox["width"];
-            var x = window.innerHeight / window.innerWidth * neededViewBox["x"];
-            var y = window.innerHeight / window.innerWidth * neededViewBox["y"];
-            console.log({"x":x, "y":y, "height":height, "width": width});
+            var height = window.innerWidth / window.innerHeight * neededViewBox["height"];
+            var width = window.innerWidth / window.innerHeight * neededViewBox["width"];
+            //var height = ((window.innerWidth / window.innerHeight) * this.greater);
+            //var width = ((window.innerWidth / window.innerHeight) * this.greater);
+            var x = (window.innerWidth / window.innerHeight) * neededViewBox["x"];
+            var y = (window.innerWidth / window.innerHeight) * neededViewBox["y"];
+            console.log(window.innerWidth / window.innerHeight, {"x":x, "y":y, "height":height, "width": width});
             return {"x":x, "y":y, "height":height, "width": width};
         };
         var newViewBox = wantedViewBox(neededViewBox);
         svg.setAttribute('xmlns', NS);
-        svg.setAttribute('viewBox', `${newViewBox["x"]} ${newViewBox["y"]} ${newViewBox["height"]} ${newViewBox["width"]}`);
+        svg.setAttribute('viewBox', `${newViewBox["x"]} ${newViewBox["y"]} ${newViewBox["width"]} ${newViewBox["height"]}`);
         var style = document.createElementNS(NS, 'style');
         style.innerHTML = `path{stroke:grey;}`;
         svg.appendChild(style);

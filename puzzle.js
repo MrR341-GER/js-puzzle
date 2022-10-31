@@ -13,6 +13,7 @@ class Puzzle
         this.ratio = null
         this.movingPuzzle = null;
         this.svg = null;
+        this.neededViewBox = null;
         this.image.onload = () =>
         {
             this.svg = this.createSVG();
@@ -26,6 +27,25 @@ class Puzzle
                 }
             };
         }
+    }
+
+    handleResize(neededViewBox)
+    {
+        if (neededViewBox[ "width" ] > neededViewBox[ "height" ] || (window.innerHeight / (window.innerWidth / neededViewBox[ "width" ])) > neededViewBox[ "height" ])
+        {
+            var height = window.innerHeight / (window.innerWidth / neededViewBox[ "width" ]);
+            var width = neededViewBox[ "width" ];
+        } else if (neededViewBox[ "width" ] <= neededViewBox[ "height" ] || (window.innerWidth / (window.innerHeight / neededViewBox[ "height" ])) > neededViewBox[ "width" ])
+        {
+            var height = neededViewBox[ "height" ];
+            var width = window.innerWidth / (window.innerHeight / neededViewBox[ "height" ]);
+        } else
+        {
+            console.log("something went wrong");
+        }
+        var x = this.ratio * neededViewBox[ "x" ];
+        var y = this.ratio * neededViewBox[ "y" ];
+        return { "x": x, "y": y, "height": height, "width": width };
     }
 
     createSVG()
@@ -54,27 +74,7 @@ class Puzzle
         const NS = 'http://www.w3.org/2000/svg';
         let svg = document.createElementNS(NS, 'svg');
         const neededViewBox = { "x": -this.strokeWidth, "y": -this.strokeWidth, "height": this.row + this.strokeWidth * 2, "width": this.col + this.strokeWidth * 2 };
-        console.log(neededViewBox);
-        var wantedViewBox = (neededViewBox) =>
-        {
-            if (neededViewBox[ "width" ] > neededViewBox[ "height" ] || (window.innerHeight / (window.innerWidth / neededViewBox[ "width" ])) > neededViewBox[ "height" ])
-            {
-                var height = window.innerHeight / (window.innerWidth / neededViewBox[ "width" ]);
-                var width = neededViewBox[ "width" ];
-            } else if (neededViewBox[ "width" ] <= neededViewBox[ "height" ] || (window.innerWidth / (window.innerHeight / neededViewBox[ "height" ])) > neededViewBox[ "width" ])
-            {
-                var height = neededViewBox[ "height" ];
-                var width = window.innerWidth / (window.innerHeight / neededViewBox[ "height" ]);
-            } else {
-                console.log("something went wrong");
-            }
-
-            var x = this.ratio * neededViewBox[ "x" ];
-            var y = this.ratio * neededViewBox[ "y" ];
-            console.log(this.greater, this.ratio, { "x": x, "y": y, "height": height, "width": width });
-            return { "x": x, "y": y, "height": height, "width": width };
-        };
-        var newViewBox = wantedViewBox(neededViewBox);
+        var newViewBox = this.handleResize(neededViewBox);
         svg.setAttribute('xmlns', NS);
         svg.setAttribute('viewBox', `${newViewBox[ "x" ]} ${newViewBox[ "y" ]} ${newViewBox[ "width" ]} ${newViewBox[ "height" ]}`);
         var style = document.createElementNS(NS, 'style');
@@ -130,6 +130,11 @@ class Puzzle
                 this.movingPuzzle.offsetY = newY
             }
         }
+        window.onresize = (e) =>
+        {
+            newViewBox = this.handleResize(neededViewBox);
+            svg.setAttribute('viewBox', `${newViewBox[ "x" ]} ${newViewBox[ "y" ]} ${newViewBox[ "width" ]} ${newViewBox[ "height" ]}`);
+        };
         return svg;
     }
 

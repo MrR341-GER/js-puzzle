@@ -72,20 +72,20 @@ class Puzzle
             }
         }
         const NS = 'http://www.w3.org/2000/svg';
-        let svg = document.createElementNS(NS, 'svg');
+        this.svg = document.createElementNS(NS, 'svg');
         const neededViewBox = { "x": -this.strokeWidth, "y": -this.strokeWidth, "height": this.row + this.strokeWidth * 2, "width": this.col + this.strokeWidth * 2 };
         var newViewBox = this.handleResize(neededViewBox);
-        svg.setAttribute('xmlns', NS);
-        svg.setAttribute('viewBox', `${newViewBox[ "x" ]} ${newViewBox[ "y" ]} ${newViewBox[ "width" ]} ${newViewBox[ "height" ]}`);
+        this.svg.setAttribute('xmlns', NS);
+        this.svg.setAttribute('viewBox', `${newViewBox[ "x" ]} ${newViewBox[ "y" ]} ${newViewBox[ "width" ]} ${newViewBox[ "height" ]}`);
         var style = document.createElementNS(NS, 'style');
         style.innerHTML = `path{stroke:grey;}`;
-        svg.appendChild(style);
+        this.svg.appendChild(style);
         let defs = document.createElementNS(NS, "defs");
         defs.innerHTML = `
         <pattern id="img1" patternUnits="userSpaceOnUse" width="${this.col}" height="${this.row}">
             <image href="${this.image.src}" x="0" y="0"  width="${this.col}" height="${this.row}"></image>
         </pattern>`;
-        svg.appendChild(defs);
+        this.svg.appendChild(defs);
         for (let y = 0; y < this.row; y++)
         {
             for (let x = 0; x < this.col; x++)
@@ -104,7 +104,7 @@ class Puzzle
                     let { x, y } = this.svg.getBoundingClientRect();
                     this.offsetX = ((e.clientX - x) / tile[ "width" ]) + this.strokeWidth - path.offsetX;
                     this.offsetY = ((e.clientY - y) / tile[ "height" ]) + this.strokeWidth - path.offsetY;
-                    svg.appendChild(path);
+                    this.svg.appendChild(path);
                 };
                 path.onmouseout = (e) =>
                 {
@@ -114,7 +114,7 @@ class Puzzle
                 {
                     path.style.filter = "brightness(0.8)";
                 }
-                svg.appendChild(path);
+                this.svg.appendChild(path);
             }
         }
         document.onmousemove = (e) =>
@@ -133,9 +133,9 @@ class Puzzle
         window.onresize = (e) =>
         {
             newViewBox = this.handleResize(neededViewBox);
-            svg.setAttribute('viewBox', `${newViewBox[ "x" ]} ${newViewBox[ "y" ]} ${newViewBox[ "width" ]} ${newViewBox[ "height" ]}`);
+            this.svg.setAttribute('viewBox', `${newViewBox[ "x" ]} ${newViewBox[ "y" ]} ${newViewBox[ "width" ]} ${newViewBox[ "height" ]}`);
         };
-        return svg;
+        return this.svg;
     }
 
 }

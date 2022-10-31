@@ -1,4 +1,4 @@
-class SVG {
+class Puzzle {
     constructor(row, col, strokeWidth, imagePath) {
         this.row = row;
         this.col = col;
@@ -11,7 +11,7 @@ class SVG {
         this.svg = null;
         this.image.onload = () => {
             this.svg = this.createSVG();
-            document.body.appendChild(this.svg);
+            document.getElementById("puzzle".toLowerCase()).appendChild(this.svg);
             document.onmouseup = () => {
                 if (this.movingPuzzle) {
                     this.movingPuzzle.style.filter = "brightness(0.8)";
@@ -37,13 +37,24 @@ class SVG {
                 this.row = Math.round(this.image.height / (this.image.width / greater));
                 this.col = greater;
             }
-            console.log(this.row);
-            console.log(this.col);
+            //console.log(this.row);
+            //console.log(this.col);
         }
         const NS = 'http://www.w3.org/2000/svg';
         let svg = document.createElementNS(NS, 'svg');
+        const neededViewBox = {"x": -this.strokeWidth, "y": -this.strokeWidth, "height": this.col + this.strokeWidth * 2, "width": this.row + this.strokeWidth * 2};
+
+        var wantedViewBox = (neededViewBox) => {
+            var height = window.innerHeight / window.innerWidth * neededViewBox["height"];
+            var width = window.innerHeight / window.innerWidth * neededViewBox["width"];
+            var x = window.innerHeight / window.innerWidth * neededViewBox["x"];
+            var y = window.innerHeight / window.innerWidth * neededViewBox["y"];
+            console.log({"x":x, "y":y, "height":height, "width": width});
+            return {"x":x, "y":y, "height":height, "width": width};
+        };
+        var newViewBox = wantedViewBox(neededViewBox);
         svg.setAttribute('xmlns', NS);
-        svg.setAttribute('viewBox', `${-this.strokeWidth} ${-this.strokeWidth} ${this.col + this.strokeWidth * 2} ${this.row + this.strokeWidth * 2}`);
+        svg.setAttribute('viewBox', `${newViewBox["x"]} ${newViewBox["y"]} ${newViewBox["height"]} ${newViewBox["width"]}`);
         var style = document.createElementNS(NS, 'style');
         style.innerHTML = `path{stroke:grey;}`;
         svg.appendChild(style);

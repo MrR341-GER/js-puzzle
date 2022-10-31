@@ -2,12 +2,13 @@ class Puzzle {
     constructor(row, col, strokeWidth, imagePath) {
         this.row = row;
         this.col = col;
-        this.greater;
+        this.greater = null;
         this.strokeWidth = strokeWidth;
         this.image = new Image();
         this.image.src = imagePath;
         this.offsetX = 0;
         this.offsetY = 0;
+        this.ratio = null
         this.movingPuzzle = null;
         this.svg = null;
         this.image.onload = () => {
@@ -48,13 +49,14 @@ class Puzzle {
         const neededViewBox = {"x": -this.strokeWidth, "y": -this.strokeWidth, "height": this.col + this.strokeWidth * 2, "width": this.row + this.strokeWidth * 2};
 
         var wantedViewBox = (neededViewBox) => {
-            var height = window.innerWidth / window.innerHeight * neededViewBox["height"];
-            var width = window.innerWidth / window.innerHeight * neededViewBox["width"];
+            this.ratio = window.innerWidth / window.innerHeight;
+            var height = this.ratio * neededViewBox["height"];
+            var width = this.ratio * neededViewBox["width"];
             //var height = ((window.innerWidth / window.innerHeight) * this.greater);
             //var width = ((window.innerWidth / window.innerHeight) * this.greater);
-            var x = (window.innerWidth / window.innerHeight) * neededViewBox["x"];
-            var y = (window.innerWidth / window.innerHeight) * neededViewBox["y"];
-            console.log(window.innerWidth / window.innerHeight, {"x":x, "y":y, "height":height, "width": width});
+            var x = (this.ratio) * neededViewBox["x"];
+            var y = (this.ratio) * neededViewBox["y"];
+            console.log(this.ratio, {"x":x, "y":y, "height":height, "width": width});
             return {"x":x, "y":y, "height":height, "width": width};
         };
         var newViewBox = wantedViewBox(neededViewBox);

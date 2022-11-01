@@ -33,23 +33,27 @@ class Tile {
     checkNeighbors(tilesArray) {
         tilesArray.forEach(row => {
             row.forEach(tile => {
-                switch (tile.arrayPosition) {
-                    case this.tileRight.arrayPosition:
+                console.log(this);
+                if (this.tileRight.arrayPosition) {
+                    if (tile.arrayPosition == this.tileRight.arrayPosition) {
                         console.log("snapRight");
-                        break;
-                    case this.tileLeft.arrayPosition:
-                        console.log("snapLeft");
-                        break;
-                    case this.tileUp.arrayPosition:
-                        console.log("snapUp");
-                        break;
-                    case this.tileDown.arrayPosition:
-                        console.log("snapDown");
-                        break;
-                    default:
-                        break;
+                    }
                 }
-
+                if (this.tileLeft.arrayPosition) {
+                    if (tile.arrayPosition == this.tileLeft.arrayPosition) {
+                        console.log("snapLeft");
+                    }
+                }
+                if (this.tileUp.arrayPosition) {
+                    if (tile.arrayPosition == this.tileUp.arrayPosition) {
+                        console.log("snapUp");
+                    }
+                }
+                if (this.tileDown.arrayPosition) {
+                    if (tile.arrayPosition == this.tileDown.arrayPosition) {
+                        console.log("snapDown");
+                    }
+                }
             });
         });
     }

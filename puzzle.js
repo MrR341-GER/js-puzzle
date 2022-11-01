@@ -2,7 +2,7 @@ class Tile {
     constructor({ y, x }) {
         this.arrayPosition = { y, x };
         // hideerrorposition
-        this.position = { "x": Math.ceil(Math.random() * 100), "y": Math.ceil(Math.random() * 100) }//null;
+        this.position = { "x": 0, "y": 0 }//null;
         this.htmlObject = null;
         this.tileRight = null;
         this.tileDown = null;
@@ -35,37 +35,85 @@ class Tile {
     checkSnap(tilesArray) {
         var closestTile = null;
         var closestDistance = Number.POSITIVE_INFINITY;
+        var accuracy = 0.9;
         tilesArray.forEach(row => {
             row.forEach(tile => {
                 if (this != tile) {
                     var distance = Math.sqrt(((this.position.x - tile.position.x) ** 2) + ((this.position.y - tile.position.y) ** 2));
-                    console.log(Math.sqrt(((tile.position.x - this.position.x) ** 2) + ((tile.position.y - this.position.y) ** 2)) == Math.sqrt(((this.position.x - tile.position.x) ** 2) + ((this.position.y - tile.position.y) ** 2)));
 
                     // console.log(this.position.x);
                     // console.log(this.position.y);
                     // console.log(tile.position.x);
                     // console.log(tile.position.y);
                     //console.log(closestDistance);
-                    if (distance < closestDistance) {
-                        closestTile = tile;
-                        closestDistance = distance;
-                    } else if (distance == closestDistance && Math.random() > 0.5) {
-                        console.log("unlikely");
-                        closestTile = tile;
+                    if (distance <= (2 - accuracy) && distance >= accuracy) {
+                        if (distance < closestDistance) {
+                            closestTile = tile;
+                            closestDistance = distance;
+                        }
                     }
+                    // else if (distance == closestDistance && Math.random() > 0.5) {
+                    //     console.log("unlikely");
+                    //     closestTile = tile;
+                    // }
                 }
             });
         });
-        console.log("closest:");
-        console.log(closestDistance);
-        this.connectTiles(closestTile);
+
+        if (closestDistance <= (2 - accuracy) && closestDistance >= accuracy) {
+            console.log(closestDistance);
+            console.log("connecting");
+            //console.log("closest:");
+            //console.log(closestDistance);
+            this.connectTiles(closestTile, accuracy);
+        } else {
+            console.log(closestDistance <= (2 - accuracy));
+            console.log(closestDistance >= accuracy);
+        }
+
     }
 
-    connectTiles(tile) {
-        //console.log(this);
-        var x = (this.position.x - tile.position.x > 0) ? tile.position.x - (tile.width / 2) : tile.position.x + (tile.width / 2);
-        var y = (this.position.y - tile.position.x > 0) ? tile.position.y - (tile.height / 2) : tile.position.y + (tile.height / 2);
-        var new_position = { y, x }
+    connectTiles(tile, accuracy) {
+        var isLeft = (tile.position.x - this.position.x > accuracy)
+        var isBelow = (this.position.y - tile.position.y > accuracy)
+        var isRight = (this.position.x - tile.position.x > accuracy)
+        var isUp = (tile.position.y - this.position.y > accuracy);
+        var x = 0;
+        var y = 0;
+        var allGood = true;
+        switch (true) {
+            case (isLeft && !isBelow && !isRight && !isUp):
+                x = tile.position.x - 1;
+                y = tile.position.y;
+                break;
+            case (!isLeft && isBelow && !isRight && !isUp):
+                x = tile.position.x;
+                y = tile.position.y + 1;
+                break;
+            case (!isLeft && !isBelow && isRight && !isUp):
+                x = tile.position.x + 1;
+                y = tile.position.y;
+                break;
+            case (!isLeft && !isBelow && !isRight && isUp):
+                x = tile.position.x;
+                y = tile.position.y - 1;
+                break;
+            default:
+                console.log("something went wrong");
+                allGood = false;
+                console.log(isLeft);
+                console.log(isBelow);
+                console.log(isRight);
+                console.log(isUp);
+                break;
+        }
+        if (allGood) {
+            // Beim snapping wird der weg bis zum snapping nicht verrechnet (Stelle unbekannt)
+            // Wenn man mit der Maus das Tile nach dem snappen wieder aufnimmt, ohne die Maus zu bewegen,
+            // bewegt sich das Tile wieder an die Stelle zurück bevor es ran gesnapt ist
+            this.htmlObject.setAttribute("transform", `translate(${(x - .5) - this.arrayPosition.x} ${(y - .5) - this.arrayPosition.y})`);;
+            this.changePosition(x, y);
+        }
     }
 
     checkForNeighbors(tilesArray) {

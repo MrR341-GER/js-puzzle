@@ -30,20 +30,18 @@ class Puzzle
 
     handleResize(neededViewBox)
     {
-        if (neededViewBox[ "width" ] > neededViewBox[ "height" ] || (window.innerHeight / (window.innerWidth / neededViewBox[ "width" ])) > neededViewBox[ "height" ])
+        var height = neededViewBox[ "height" ];
+        var width = window.innerWidth / (window.innerHeight / neededViewBox[ "height" ]);
+        if ((window.innerHeight / (window.innerWidth / neededViewBox[ "width" ])) > neededViewBox[ "height" ])
         {
-            var height = window.innerHeight / (window.innerWidth / neededViewBox[ "width" ]);
-            var width = neededViewBox[ "width" ];
-        } else if (neededViewBox[ "width" ] <= neededViewBox[ "height" ] || (window.innerWidth / (window.innerHeight / neededViewBox[ "height" ])) > neededViewBox[ "width" ])
-        {
-            var height = neededViewBox[ "height" ];
-            var width = window.innerWidth / (window.innerHeight / neededViewBox[ "height" ]);
-        } else
-        {
-            console.log("something went wrong");
+            height = window.innerHeight / (window.innerWidth / neededViewBox[ "width" ]);
+            width = neededViewBox[ "width" ];
         }
-        var x = this.ratio * neededViewBox[ "x" ];
-        var y = this.ratio * neededViewBox[ "y" ];
+        //var x = this.ratio * neededViewBox[ "x" ];
+        //var y = this.ratio * neededViewBox[ "y" ];
+        
+        var x = window.innerWidth / (window.innerHeight / neededViewBox[ "x" ]);
+        var y = window.innerHeight / (window.innerWidth / neededViewBox[ "y" ]);
         return { "x": x, "y": y, "height": height, "width": width };
     }
 
@@ -81,7 +79,9 @@ class Puzzle
         this.svg.appendChild(style);
         let defs = document.createElementNS(NS, "defs");
         defs.innerHTML = `
-        <clipPath id="clip"><rect x="0" y="0" height="1" width="1" / ></clipPath>
+        <clipPath id="clip">
+            <rect x="0" y="0" height="1" width="1" / >
+        </clipPath>
         <pattern id="img1" patternUnits="userSpaceOnUse" width="${this.col}" height="${this.row}">
             <image href="${this.image.src}" x="0" y="0"  width="${this.col}" height="${this.row}"></image>
         </pattern>`;
@@ -96,7 +96,6 @@ class Puzzle
                 clipPath.innerHTML = `
                 <rect x="${x}" y="${y}" height="1" width="1" / >
                 `;
-                
                 defs.appendChild(clipPath);
                 path.setAttribute("d", `M ${x} ${y} l 1 0 l 0 1 l -1 0 z`);
                 path.setAttribute("stroke-width", this.strokeWidth);

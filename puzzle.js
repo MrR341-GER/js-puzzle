@@ -13,6 +13,7 @@ class Puzzle
         this.ratio = null
         this.movingPuzzle = null;
         this.svg = null;
+        this.ViewBox = null;
         this.image.onload = () =>
         {
             this.svg = this.createSVG();
@@ -40,7 +41,7 @@ class Puzzle
         const ratio = width / height;
         const ratioNeeded = window.innerWidth / window.innerHeight;
 
-        return ratioNeeded > ratio ? {
+        this.ViewBox = ratioNeeded > ratio ? {
             "width"  :  height * ratioNeeded,
             "height" :  height,
             "x"      : (width - height * ratioNeeded ) / 2 - padding,
@@ -51,6 +52,8 @@ class Puzzle
             "x"      :  x,
             "y"      : (height - width / ratioNeeded) / 2 - padding
         }
+
+        return this.ViewBox;
     }
 
     createSVG()
@@ -103,8 +106,11 @@ class Puzzle
             {
                 let tile = this.movingPuzzle.getBoundingClientRect();
                 let { x, y } = this.svg.getBoundingClientRect();
-                let newX = ((e.clientX - x) / tile[ "width" ]) - this.offsetX;
+                let newX = ((e.clientX - x) / tile[ "width"  ]) - this.offsetX;
                 let newY = ((e.clientY - y) / tile[ "height" ]) - this.offsetY;
+
+                console.log(newX,newY)
+
                 this.movingPuzzle.setAttribute("transform", `translate(${newX} ${newY})`);
                 this.movingPuzzle.offsetX = newX
                 this.movingPuzzle.offsetY = newY

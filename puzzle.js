@@ -129,10 +129,13 @@ class Puzzle {
             if (this.movingPuzzle) {
                 let tile = this.movingPuzzle.getBoundingClientRect();
                 let { x, y, width, height } = this.svg.getBoundingClientRect();
-                let relativeX = (e.clientX / width) * this.ViewBox.width + this.ViewBox.x - this.offsetX;
-                let relativeY = (e.clientY / height) * this.ViewBox.height + this.ViewBox.y - this.offsetY;
-                console.log(relativeX);
-                console.log(relativeY);
+                let relativeX = (e.clientX / width )  * this.ViewBox.width  + this.ViewBox.x - this.offsetX;
+                let relativeY = (e.clientY / height)  * this.ViewBox.height + this.ViewBox.y - this.offsetY;
+                let absoluteX = relativeX;
+                let absoluteY = relativeY;
+                console.log("__");
+                console.log(width  / tile.width);
+                console.log(height / tile.height);
                 this.movingPuzzle.setAttribute("transform", `translate(${relativeX} ${relativeY})`);
                 this.movingPuzzle.offsetX = relativeX
                 this.movingPuzzle.offsetY = relativeY
@@ -154,7 +157,7 @@ class Puzzle {
         colJiggle[0].fill(0);
         colJiggle[this.col].fill(0);
 
-        const ANGLE = 90 * Math.PI / 180;
+        const ANGLE = 0 * Math.PI / 180;
         const DIST = .5;
 
         let p1x, p1y, p2x, p2y;

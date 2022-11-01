@@ -29,6 +29,30 @@ class Tile {
     setHtmlObject(htmlObject) {
         this.htmlObject = htmlObject;
     }
+
+    checkNeighbors(tilesArray) {
+        tilesArray.forEach(row => {
+            row.forEach(tile => {
+                switch (tile.arrayPosition) {
+                    case this.tileRight.arrayPosition:
+                        console.log("snapRight");
+                        break;
+                    case this.tileLeft.arrayPosition:
+                        console.log("snapLeft");
+                        break;
+                    case this.tileUp.arrayPosition:
+                        console.log("snapUp");
+                        break;
+                    case this.tileDown.arrayPosition:
+                        console.log("snapDown");
+                        break;
+                    default:
+                        break;
+                }
+
+            });
+        });
+    }
     debug() {
         console.log(this);
     }
@@ -52,12 +76,14 @@ class Puzzle {
         this.movingPuzzle = null;
         this.svg = null;
         this.ViewBox = null;
+        this.tilesArray = [];
         this.image.onload = () => {
             this.svg = this.createSVG();
             document.getElementById("puzzle".toLowerCase()).appendChild(this.svg);
             document.onmouseup = () => {
                 if (this.movingPuzzle) {
                     this.movingPuzzle.htmlObject.style.filter = "brightness(0.8)";
+                    this.movingPuzzle.checkNeighbors(this.tilesArray);
                     this.movingPuzzle = null;
                 }
             };
@@ -130,17 +156,15 @@ class Puzzle {
 
         document.onmousemove = (e) => {
             if (this.movingPuzzle) {
-                console.log(this.movingPuzzle);
                 let tile = this.movingPuzzle.htmlObject.getBoundingClientRect();
                 let { x, y, width, height } = this.svg.getBoundingClientRect();
-                let relativeX = (e.clientX / width )  * this.ViewBox.width  + this.ViewBox.x - this.offsetX;
-                let relativeY = (e.clientY / height)  * this.ViewBox.height + this.ViewBox.y - this.offsetY;
+                let relativeX = (e.clientX / width) * this.ViewBox.width + this.ViewBox.x - this.offsetX;
+                let relativeY = (e.clientY / height) * this.ViewBox.height + this.ViewBox.y - this.offsetY;
                 let absoluteX = relativeX;
                 let absoluteY = relativeY;
                 //console.log("__");
                 //console.log(width  / tile.width);
                 //console.log(height / tile.height);
-                //console.log(this.movingPuzzle);
                 this.movingPuzzle.htmlObject.setAttribute("transform", `translate(${relativeX} ${relativeY})`);
                 this.movingPuzzle.htmlObject.offsetX = relativeX
                 this.movingPuzzle.htmlObject.offsetY = relativeY
@@ -166,12 +190,11 @@ class Puzzle {
         const DIST = .5;
 
         let p1x, p1y, p2x, p2y;
-        var tilesArray = [];
 
         for (let y = 0; y < this.row; y++) {
-            tilesArray[y] = [];
+            this.tilesArray[y] = [];
             for (let x = 0; x < this.col; x++) {
-                tilesArray[y][x] = new Tile({ y, x });
+                this.tilesArray[y][x] = new Tile({ y, x });
                 let path = document.createElementNS(NS, 'path');
 
                 p1x = Math.cos(ANGLE * rowJiggle[y][x]) * DIST
@@ -212,17 +235,17 @@ class Puzzle {
 
                 path.offsetX = 0;
                 path.offsetY = 0;
-                tilesArray[y][x].setHtmlObject(path);;
+                this.tilesArray[y][x].setHtmlObject(path);;
                 path.onmousedown = (e) => {
                     path.style.filter = "brightness(1)";
-                    this.movingPuzzle = tilesArray[y][x];
+                    this.movingPuzzle = this.tilesArray[y][x];
                     let tile = path.getBoundingClientRect();
                     let svgBCR = this.svg.getBoundingClientRect();
                     this.offsetX = (e.clientX / svgBCR.width) * this.ViewBox.width + this.ViewBox.x + this.strokeWidth - path.offsetX;
                     this.offsetY = (e.clientY / svgBCR.height) * this.ViewBox.height + this.ViewBox.y + this.strokeWidth - path.offsetY;
                     this.svg.appendChild(path);
                     // Bitte um Bestätigung der Korrektheit, dass this.movingPuzzle die Klasse refferenziert und nicht mehr nur das HTML Objekt
-                    //console.log(this.movingPuzzle.htmlObject == tilesArray[y][x].htmlObject);
+                    console.log(this.movingPuzzle.htmlObject == this.tilesArray[y][x].htmlObject);
                 };
                 path.onmouseout = (e) => {
                     path.style.filter = "brightness(1)";
@@ -231,14 +254,14 @@ class Puzzle {
                     path.style.filter = "brightness(0.8)";
                 }
                 this.svg.appendChild(path);
-                tilesArray[y][x].setHtmlObject(path);
+                this.tilesArray[y][x].setHtmlObject(path);
             }
         }
-        tilesArray.forEach(row => {
+        this.tilesArray.forEach(row => {
             row.forEach(tile => {
-                tile.calculateNeighbors(tilesArray)
+                tile.calculateNeighbors(this.tilesArray)
             });
         });
-        console.log(tilesArray);
+        console.log(this.tilesArray);
     }
 }

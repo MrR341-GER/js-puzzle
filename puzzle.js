@@ -1,12 +1,13 @@
 class Tile {
     constructor({ y, x }) {
         this.arrayPosition = { y, x };
-        this.Position = null;
+        this.position = null;
         this.htmlObject = null;
         this.tileRight = null;
         this.tileDown = null;
         this.tileLeft = null;
         this.tileUp = null;
+        this.connectedTiles = [null, null, null, null]
     }
     calculateNeighbors(array1) {
         if (typeof array1[this.arrayPosition.y][this.arrayPosition.x + 1] != "undefined") {
@@ -30,32 +31,110 @@ class Tile {
         this.htmlObject = htmlObject;
     }
 
-    checkNeighbors(tilesArray) {
+    checkSnap(tilesArray) {
+        var closestTile = null;
+        var closestDistance = null;
         tilesArray.forEach(row => {
             row.forEach(tile => {
-                console.log(this);
-                if (this.tileRight.arrayPosition) {
-                    if (tile.arrayPosition == this.tileRight.arrayPosition) {
-                        console.log("snapRight");
-                    }
+                var distance = Math.sqrt(((this.position.x - tile.position.x) ** 2) + ((this.position.y - tile.position.y) ** 2));
+                if (distance < closestDistance) {
+                    closestTile = tile;
+                    closestDistance = distance;
                 }
-                if (this.tileLeft.arrayPosition) {
-                    if (tile.arrayPosition == this.tileLeft.arrayPosition) {
-                        console.log("snapLeft");
-                    }
-                }
-                if (this.tileUp.arrayPosition) {
-                    if (tile.arrayPosition == this.tileUp.arrayPosition) {
-                        console.log("snapUp");
-                    }
-                }
-                if (this.tileDown.arrayPosition) {
-                    if (tile.arrayPosition == this.tileDown.arrayPosition) {
-                        console.log("snapDown");
-                    }
-                }
+                console.log(closestTile);
             });
+            this.connectTiles(closestTile);
         });
+    }
+
+    connectTiles(tile1, tile2) {
+
+    }
+
+    checkForNeighbors(tilesArray) {
+        // var check = true;
+        // if (this.position == 0) {
+
+        // }
+        // if (this.tileRight) {
+        //     if (tile.arrayPosition[x] == this.tileRight.arrayPosition) {
+        //         console.log("has Right Tile");
+        //     } else {
+        //         check = false;
+        //         console.log("Right");
+        //         throw tile.arrayPosition;
+        //     }
+        // }
+        // if (this.tileLeft) {
+        //     if (tile.arrayPosition == this.tileLeft.arrayPosition) {
+        //         console.log("has Left Tile");
+        //     } else {
+        //         check = false;
+        //         console.log("Left");
+        //         throw tile.arrayPosition;
+        //     }
+        // }
+        // if (this.tileUp) {
+        //     if (tile.arrayPosition == this.tileUp.arrayPosition) {
+        //         console.log("has Up Tile");
+        //     } else {
+        //         check = false;
+        //         console.log("Up");
+        //         throw tile.arrayPosition;
+        //     }
+        // }
+        // if (this.tileDown) {
+        //     if (tile.arrayPosition == this.tileDown.arrayPosition) {
+        //         console.log("has Down Tile");
+        //     } else {
+        //         check = false;
+        //         console.log("Down");
+        //         throw tile.arrayPosition;
+        //     }
+        // }
+        // tilesArray.forEach(row => {
+        //     row.forEach(tile => {
+        //         if (this.tileRight) {
+        //             if (tile.arrayPosition == this.tileRight.arrayPosition) {
+        //                 console.log("has Right Tile");
+        //             } else {
+        //                 check = false;
+        //                 console.log("Right");
+        //                 throw tile.arrayPosition;
+        //             }
+        //         }
+        //         if (this.tileLeft) {
+        //             if (tile.arrayPosition == this.tileLeft.arrayPosition) {
+        //                 console.log("has Left Tile");
+        //             } else {
+        //                 check = false;
+        //                 console.log("Left");
+        //                 throw tile.arrayPosition;
+        //             }
+        //         }
+        //         if (this.tileUp) {
+        //             if (tile.arrayPosition == this.tileUp.arrayPosition) {
+        //                 console.log("has Up Tile");
+        //             } else {
+        //                 check = false;
+        //                 console.log("Up");
+        //                 throw tile.arrayPosition;
+        //             }
+        //         }
+        //         if (this.tileDown) {
+        //             if (tile.arrayPosition == this.tileDown.arrayPosition) {
+        //                 console.log("has Down Tile");
+        //             } else {
+        //                 check = false;
+        //                 console.log("Down");
+        //                 throw tile.arrayPosition;
+        //             }
+        //         }
+        //     });
+        // });
+        // if (check == false) {
+        //     console.log("you win!");
+        // }
     }
     debug() {
         console.log(this);
@@ -87,7 +166,7 @@ class Puzzle {
             document.onmouseup = () => {
                 if (this.movingPuzzle) {
                     this.movingPuzzle.htmlObject.style.filter = "brightness(0.8)";
-                    this.movingPuzzle.checkNeighbors(this.tilesArray);
+                    this.movingPuzzle.checkSnap(this.tilesArray);
                     this.movingPuzzle = null;
                 }
             };

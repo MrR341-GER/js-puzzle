@@ -47,8 +47,10 @@ class Tile {
         });
     }
 
-    connectTiles(tile1, tile2) {
-
+    connectTiles(tile) {
+        var x = (this.position.x - tile.position.x > 0) ? tile.position.x - (tile.width / 2) : tile.position.x + (tile.width / 2);
+        var y = (this.position.y - tile.position.x > 0) ? tile.position.y - (tile.height / 2) : tile.position.y + (tile.height / 2);
+        var new_position = { y, x }
     }
 
     checkForNeighbors(tilesArray) {

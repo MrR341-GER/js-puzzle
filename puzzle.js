@@ -56,8 +56,8 @@ class Tile {
                 }
             });
         });
-        // console.log("closest:");
-        // console.log(closestDistance);
+        console.log("closest:");
+        console.log(closestDistance);
         this.connectTiles(closestTile);
     }
 
@@ -156,8 +156,8 @@ class Tile {
     debug() {
         console.log(this);
     }
-    changePosition() {
-
+    changePosition(x, y) {
+        this.position = { x, y };
     }
 }
 
@@ -280,6 +280,7 @@ class Puzzle {
                 var pixels_per_coord_unit_y = Y_RANGE_PIXELS / Y_RANGE_COORDS;
                 var x_point_cord = (X_OFFSET_COORDS) + (x_point_pixels / pixels_per_coord_unit_x);
                 var y_point_cord = (Y_OFFSET_COORDS) + (y_point_pixels / pixels_per_coord_unit_y);
+                this.movingPuzzle.changePosition(x_point_cord, y_point_cord);
                 this.movingPuzzle.htmlObject.setAttribute("transform", `translate(${relativeX} ${relativeY})`);
                 this.movingPuzzle.htmlObject.offsetX = relativeX
                 this.movingPuzzle.htmlObject.offsetY = relativeY
@@ -306,6 +307,7 @@ class Puzzle {
             this.tilesArray[y] = [];
             for (let x = 0; x < this.col; x++) {
                 this.tilesArray[y][x] = new Tile({ y, x });
+                this.tilesArray[y][x].changePosition((x + 0.5), (y + 0.5));
                 let path = document.createElementNS(NS, 'path');
 
                 p1x = Math.cos(ANGLE * rowJiggle[y][x]) * DIST
@@ -355,8 +357,6 @@ class Puzzle {
                     this.offsetX = (e.clientX / svgBCR.width) * this.ViewBox.width + this.ViewBox.x - path.offsetX;
                     this.offsetY = (e.clientY / svgBCR.height) * this.ViewBox.height + this.ViewBox.y - path.offsetY;
                     this.svg.appendChild(path);
-                    // Bitte um Bestätigung der Korrektheit, dass this.movingPuzzle die Klasse refferenziert und nicht mehr nur das HTML Objekt
-                    console.log(this.movingPuzzle.htmlObject == this.tilesArray[y][x].htmlObject);
                 };
                 path.onmouseout = (e) => {
                     path.style.filter = "brightness(1)";

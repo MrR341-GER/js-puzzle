@@ -25,7 +25,7 @@ class Puzzle {
     }
 
     handleResize(neededViewBox) {
-        
+
         if (neededViewBox["width"] > neededViewBox["height"] || (window.innerHeight / (window.innerWidth / neededViewBox["width"])) > neededViewBox["height"]) {
             var height = window.innerHeight / (window.innerWidth / neededViewBox["width"]);
             var width = neededViewBox["width"];
@@ -82,7 +82,7 @@ class Puzzle {
         //defs.innerHTML = `
         //<pattern id="img1" patternContentUnits="objectBoundingBox" patternUnits="userSpaceOnUse" width="${this.col}" height="${this.row}">
         //</pattern>`;
-        
+
         this.svg.appendChild(defs);
         let counter = 1;
         var area_coordinates = {};

@@ -94,44 +94,9 @@ class Puzzle
             <image href="${this.image.src}" x="0" y="0"  width="${this.col}" height="${this.row}" preserveAspectRatio="xMidYMid slice"></image>
         </pattern>`;
         this.svg.appendChild(defs);
-        for (let y = 0; y < this.row; y++)
-        {
-            for (let x = 0; x < this.col; x++)
-            {
-                let path = document.createElementNS(NS, 'path');
-                let clipPath = document.createElementNS(NS, 'clipPath');
-                clipPath.setAttribute("id", `clip${y + "-" + x}`);
-                clipPath.innerHTML = `
-                <rect x="${x}" y="${y}" height="1" width="1" / >
-                `;
-                defs.appendChild(clipPath);
-                path.setAttribute("d", `M ${x} ${y} l 1 0 l 0 1 l -1 0 z`);
-                path.setAttribute("stroke-width", this.strokeWidth);
-                path.setAttribute("fill", "url(#img1)");
-                path.setAttribute("clip-path", `url(#clip${y + "-" + x})`);
-                path.offsetX = 0;
-                path.offsetY = 0;
-                path.onmousedown = (e) =>
-                {
-                    path.style.filter = "brightness(1)";
-                    this.movingPuzzle = path;
-                    let tile = path.getBoundingClientRect();
-                    let { x, y } = this.svg.getBoundingClientRect();
-                    this.offsetX = ((e.clientX - x) / tile[ "width" ]) + this.strokeWidth - path.offsetX;
-                    this.offsetY = ((e.clientY - y) / tile[ "height" ]) + this.strokeWidth - path.offsetY;
-                    this.svg.appendChild(path);
-                };
-                path.onmouseout = (e) =>
-                {
-                    path.style.filter = "brightness(1)";
-                }
-                path.onmouseover = (e) =>
-                {
-                    path.style.filter = "brightness(0.8)";
-                }
-                this.svg.appendChild(path);
-            }
-        }
+
+        this.createPaths(NS, defs);
+
         document.onmousemove = (e) =>
         {
             if (this.movingPuzzle)
@@ -153,4 +118,86 @@ class Puzzle
         return this.svg;
     }
 
+    createPaths(NS, defs){
+
+        let rowJiggle = new Array(this.row+1).fill(0).map( v => new Array(this.col+1).fill(0).map( v => Math.random()-.5 ) );
+        let colJiggle = new Array(this.col+1).fill(0).map( v => new Array(this.row+1).fill(0).map( v => Math.random()-.5 ) );
+        rowJiggle[0].fill(0);
+        rowJiggle[this.row].fill(0);
+        colJiggle[0].fill(0);
+        colJiggle[this.col].fill(0);
+
+        const ANGLE = 90 * Math.PI / 180;
+        const DIST = 0.5;
+
+        let p1x, p1y, p2x, p2y;
+
+        for (let y = 0; y < this.row; y++)
+        {
+            for (let x = 0; x < this.col; x++)
+            {
+
+                let path = document.createElementNS( NS, 'path' );
+
+                p1x = Math.cos(ANGLE*rowJiggle[y  ][x  ]        )*DIST
+                p1y = Math.sin(ANGLE*rowJiggle[y  ][x  ]        )*DIST
+                p2x = Math.cos(ANGLE*rowJiggle[y  ][x+1]+Math.PI)*DIST+1
+                p2y = Math.sin(ANGLE*rowJiggle[y  ][x+1]+Math.PI)*DIST
+                let topRow = `c ${p1x} ${p1y} ${p2x} ${p2y} 1 0`;
+
+                p1x = Math.cos(ANGLE*rowJiggle[y+1][x+1]+Math.PI)*DIST
+                p1y = Math.sin(ANGLE*rowJiggle[y+1][x+1]+Math.PI)*DIST
+                p2x = Math.cos(ANGLE*rowJiggle[y+1][x  ]        )*DIST-1
+                p2y = Math.sin(ANGLE*rowJiggle[y+1][x  ]        )*DIST
+                let bottomRow = `c ${p1x} ${p1y} ${p2x} ${p2y} -1 0`;
+
+                p1x = Math.cos(ANGLE*colJiggle[x  ][y+1]-Math.PI/2)*DIST
+                p1y = Math.sin(ANGLE*colJiggle[x  ][y+1]-Math.PI/2)*DIST
+                p2x = Math.cos(ANGLE*colJiggle[x  ][y  ]+Math.PI/2)*DIST
+                p2y = Math.sin(ANGLE*colJiggle[x  ][y  ]+Math.PI/2)*DIST-1
+                let leftRow = `c ${p1x} ${p1y} ${p2x} ${p2y} 0 -1`;
+
+                p1x = Math.cos(ANGLE*colJiggle[x+1][y  ]+Math.PI/2)*DIST
+                p1y = Math.sin(ANGLE*colJiggle[x+1][y  ]+Math.PI/2)*DIST
+                p2x = Math.cos(ANGLE*colJiggle[x+1][y+1]-Math.PI/2)*DIST
+                p2y = Math.sin(ANGLE*colJiggle[x+1][y+1]-Math.PI/2)*DIST+1
+                let rightRow = `c ${p1x} ${p1y} ${p2x} ${p2y} 0 1`;
+
+                path.setAttribute( "d", `M ${x} ${y} ${topRow} ${rightRow} ${bottomRow} ${leftRow}` );
+
+                let clipPath = document.createElementNS(NS, 'clipPath');
+                clipPath.setAttribute("id", `clip${y + "-" + x}`);
+                clipPath.innerHTML = path.outerHTML; //`<path d="M ${x} ${y} l 1 0 l 0 1 l -1 0 z" / >`;
+
+                defs.appendChild(clipPath);
+                //path.setAttribute("d", `M ${x} ${y} l 1 0 l 0 1 l -1 0 z`);
+                path.setAttribute("stroke-width", this.strokeWidth);
+                path.setAttribute("fill", "url(#img1)");
+                path.setAttribute("clip-path", `url(#clip${y + "-" + x})`);
+
+                path.offsetX = 0;
+                path.offsetY = 0;
+
+                path.onmousedown = (e) =>
+                {
+                    path.style.filter = "brightness(1)";
+                    this.movingPuzzle = path;
+                    let tile = path.getBoundingClientRect();
+                    let { x, y } = this.svg.getBoundingClientRect();
+                    this.offsetX = ((e.clientX - x) / tile[ "width" ]) + this.strokeWidth - path.offsetX;
+                    this.offsetY = ((e.clientY - y) / tile[ "height" ]) + this.strokeWidth - path.offsetY;
+                    this.svg.appendChild(path);
+                };
+                path.onmouseout = (e) =>
+                {
+                    path.style.filter = "brightness(1)";
+                }
+                path.onmouseover = (e) =>
+                {
+                    path.style.filter = "brightness(0.8)";
+                }
+                this.svg.appendChild(path);
+            }
+        }
+    }
 }

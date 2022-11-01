@@ -25,6 +25,7 @@ class Puzzle {
     }
 
     handleResize(neededViewBox) {
+        
         if (neededViewBox["width"] > neededViewBox["height"] || (window.innerHeight / (window.innerWidth / neededViewBox["width"])) > neededViewBox["height"]) {
             var height = window.innerHeight / (window.innerWidth / neededViewBox["width"]);
             var width = neededViewBox["width"];

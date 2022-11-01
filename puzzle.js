@@ -30,19 +30,24 @@ class Puzzle
 
     handleResize(neededViewBox)
     {
-        var height = neededViewBox[ "height" ];
-        var width = window.innerWidth / (window.innerHeight / neededViewBox[ "height" ]);
-        if ((window.innerHeight / (window.innerWidth / neededViewBox[ "width" ])) > neededViewBox[ "height" ])
-        {
-            height = window.innerHeight / (window.innerWidth / neededViewBox[ "width" ]);
-            width = neededViewBox[ "width" ];
+        const ratio = window.innerWidth / window.innerHeight;
+        const ratioNeeded = neededViewBox.width / neededViewBox.height;
+
+        let x, y, width, height;
+
+        if( ratio > ratioNeeded ){
+            width = neededViewBox.height * ratio;
+            height = neededViewBox.height;
+            x = -(width - neededViewBox.width) / 2;
+            y = neededViewBox.y;
+        } else {
+            width = neededViewBox.width ;
+            height = neededViewBox.width / ratio;
+            x = neededViewBox.x
+            y = -(height - neededViewBox.height) / 2;
         }
-        //var x = this.ratio * neededViewBox[ "x" ];
-        //var y = this.ratio * neededViewBox[ "y" ];
-        
-        var x = window.innerWidth / (window.innerHeight / neededViewBox[ "x" ]);
-        var y = window.innerHeight / (window.innerWidth / neededViewBox[ "y" ]);
-        return { "x": x, "y": y, "height": height, "width": width };
+
+        return { x, y, width, height };
     }
 
     createSVG()

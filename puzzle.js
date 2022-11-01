@@ -2,7 +2,7 @@ class Tile {
     constructor({ y, x }) {
         this.arrayPosition = { y, x };
         // hideerrorposition
-        this.position = {"x": 0,"y": 0}//null;
+        this.position = { "x": Math.ceil(Math.random() * 100), "y": Math.ceil(Math.random() * 100) }//null;
         this.htmlObject = null;
         this.tileRight = null;
         this.tileDown = null;
@@ -37,17 +37,27 @@ class Tile {
         var closestDistance = Number.POSITIVE_INFINITY;
         tilesArray.forEach(row => {
             row.forEach(tile => {
-                var distance = Math.sqrt(((this.position.x - tile.position.x) ** 2) + ((this.position.y - tile.position.y) ** 2));
-                //console.log(this.position.x);
-                if (distance < closestDistance) {
-                    closestTile = tile;
-                    closestDistance = distance;
-                } else if (distance == closestDistance && Math.random() > 0.5) {
-                    closestTile = tile;
+                if (this != tile) {
+                    var distance = Math.sqrt(((this.position.x - tile.position.x) ** 2) + ((this.position.y - tile.position.y) ** 2));
+                    console.log(Math.sqrt(((tile.position.x - this.position.x) ** 2) + ((tile.position.y - this.position.y) ** 2)) == Math.sqrt(((this.position.x - tile.position.x) ** 2) + ((this.position.y - tile.position.y) ** 2)));
+
+                    // console.log(this.position.x);
+                    // console.log(this.position.y);
+                    // console.log(tile.position.x);
+                    // console.log(tile.position.y);
+                    //console.log(closestDistance);
+                    if (distance < closestDistance) {
+                        closestTile = tile;
+                        closestDistance = distance;
+                    } else if (distance == closestDistance && Math.random() > 0.5) {
+                        console.log("unlikely");
+                        closestTile = tile;
+                    }
                 }
             });
         });
-        console.log(closestTile);
+        // console.log("closest:");
+        // console.log(closestDistance);
         this.connectTiles(closestTile);
     }
 
@@ -225,8 +235,12 @@ class Puzzle {
         }
         const NS = 'http://www.w3.org/2000/svg';
         this.svg = document.createElementNS(NS, 'svg');
+
+
         const neededViewBox = { "x": -this.strokeWidth, "y": -this.strokeWidth, "height": this.row + this.strokeWidth * 2, "width": this.col + this.strokeWidth * 2 };
         var newViewBox = this.handleResize(neededViewBox);
+
+
         this.svg.setAttribute('xmlns', NS);
         this.svg.setAttribute('viewBox', `${newViewBox["x"]} ${newViewBox["y"]} ${newViewBox["width"]} ${newViewBox["height"]}`);
         var style = document.createElementNS(NS, 'style');
@@ -250,11 +264,22 @@ class Puzzle {
                 let { x, y, width, height } = this.svg.getBoundingClientRect();
                 let relativeX = (e.clientX / width) * this.ViewBox.width + this.ViewBox.x - this.offsetX;
                 let relativeY = (e.clientY / height) * this.ViewBox.height + this.ViewBox.y - this.offsetY;
-                let absoluteX = relativeX;
-                let absoluteY = relativeY;
-                //console.log("__");
-                //console.log(width  / tile.width);
-                //console.log(height / tile.height);
+                var X_OFFSET_COORDS = this.ViewBox.x;
+                var Y_OFFSET_COORDS = this.ViewBox.y;
+                var X_RANGE_COORDS = this.ViewBox.width;
+                var Y_RANGE_COORDS = this.ViewBox.height;
+                var X_RANGE_PIXELS = width;
+                var Y_RANGE_PIXELS = height;
+                var X_CORNER_PIXELS = tile.x;
+                var Y_CORNER_PIXELS = tile.y;
+                var WIDTH_PIXELS = tile.width;
+                var HEIGHT_PIXELS = tile.height;
+                var x_point_pixels = X_CORNER_PIXELS + (WIDTH_PIXELS / 2);
+                var y_point_pixels = Y_CORNER_PIXELS + (HEIGHT_PIXELS / 2);
+                var pixels_per_coord_unit_x = X_RANGE_PIXELS / X_RANGE_COORDS;
+                var pixels_per_coord_unit_y = Y_RANGE_PIXELS / Y_RANGE_COORDS;
+                var x_point_cord = (X_OFFSET_COORDS) + (x_point_pixels / pixels_per_coord_unit_x);
+                var y_point_cord = (Y_OFFSET_COORDS) + (y_point_pixels / pixels_per_coord_unit_y);
                 this.movingPuzzle.htmlObject.setAttribute("transform", `translate(${relativeX} ${relativeY})`);
                 this.movingPuzzle.htmlObject.offsetX = relativeX
                 this.movingPuzzle.htmlObject.offsetY = relativeY
@@ -266,21 +291,17 @@ class Puzzle {
         };
         return this.svg;
     }
-
+    // relative Position der Maus zum linken oberen Eck der Kachel + relativer Abstand zu 0,0 im K-System im Ausgangszustand
     createPaths(NS, defs) {
-
         let rowJiggle = new Array(this.row + 1).fill(0).map(v => new Array(this.col + 1).fill(0).map(v => Math.random() - .5));
         let colJiggle = new Array(this.col + 1).fill(0).map(v => new Array(this.row + 1).fill(0).map(v => Math.random() - .5));
         rowJiggle[0].fill(0);
         rowJiggle[this.row].fill(0);
         colJiggle[0].fill(0);
         colJiggle[this.col].fill(0);
-
         const ANGLE = 0 * Math.PI / 180;
         const DIST = .5;
-
         let p1x, p1y, p2x, p2y;
-
         for (let y = 0; y < this.row; y++) {
             this.tilesArray[y] = [];
             for (let x = 0; x < this.col; x++) {
@@ -331,8 +352,8 @@ class Puzzle {
                     this.movingPuzzle = this.tilesArray[y][x];
                     let tile = path.getBoundingClientRect();
                     let svgBCR = this.svg.getBoundingClientRect();
-                    this.offsetX = (e.clientX / svgBCR.width) * this.ViewBox.width + this.ViewBox.x + this.strokeWidth - path.offsetX;
-                    this.offsetY = (e.clientY / svgBCR.height) * this.ViewBox.height + this.ViewBox.y + this.strokeWidth - path.offsetY;
+                    this.offsetX = (e.clientX / svgBCR.width) * this.ViewBox.width + this.ViewBox.x - path.offsetX;
+                    this.offsetY = (e.clientY / svgBCR.height) * this.ViewBox.height + this.ViewBox.y - path.offsetY;
                     this.svg.appendChild(path);
                     // Bitte um Bestätigung der Korrektheit, dass this.movingPuzzle die Klasse refferenziert und nicht mehr nur das HTML Objekt
                     console.log(this.movingPuzzle.htmlObject == this.tilesArray[y][x].htmlObject);

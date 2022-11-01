@@ -28,26 +28,29 @@ class Puzzle
         }
     }
 
-    handleResize(neededViewBox)
+    handleResize({x, y, width, height})
     {
-        const ratio = window.innerWidth / window.innerHeight;
-        const ratioNeeded = neededViewBox.width / neededViewBox.height;
+        const padding = 1;
 
-        let x, y, width, height;
+        width  += padding*2;
+        height += padding*2;
+        x      -= padding;
+        y      -= padding;
 
-        if( ratio > ratioNeeded ){
-            width = neededViewBox.height * ratio;
-            height = neededViewBox.height;
-            x = -(width - neededViewBox.width) / 2;
-            y = neededViewBox.y;
-        } else {
-            width = neededViewBox.width ;
-            height = neededViewBox.width / ratio;
-            x = neededViewBox.x
-            y = -(height - neededViewBox.height) / 2;
+        const ratio = width / height;
+        const ratioNeeded = window.innerWidth / window.innerHeight;
+
+        return ratioNeeded > ratio ? {
+            "width"  :  height * ratioNeeded,
+            "height" :  height,
+            "x"      : (width - height * ratioNeeded ) / 2 - padding,
+            "y"      :  y
+        } : {
+            "width"  :  width,
+            "height" :  width / ratioNeeded,
+            "x"      :  x,
+            "y"      : (height - width / ratioNeeded) / 2 - padding
         }
-
-        return { x, y, width, height };
     }
 
     createSVG()

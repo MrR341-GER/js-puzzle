@@ -105,11 +105,9 @@ class Puzzle
             if (this.movingPuzzle)
             {
                 let tile = this.movingPuzzle.getBoundingClientRect();
-                let { x, y } = this.svg.getBoundingClientRect();
-                let newX = ((e.clientX - x) / tile[ "width"  ]) - this.offsetX;
-                let newY = ((e.clientY - y) / tile[ "height" ]) - this.offsetY;
-
-                console.log(newX,newY)
+                let { x, y, width, height } = this.svg.getBoundingClientRect();
+                let newX = ( e.clientX / width  ) * this.ViewBox.width  + this.ViewBox.x - this.offsetX;
+                let newY = ( e.clientY / height ) * this.ViewBox.height + this.ViewBox.y - this.offsetY;
 
                 this.movingPuzzle.setAttribute("transform", `translate(${newX} ${newY})`);
                 this.movingPuzzle.offsetX = newX
@@ -134,7 +132,7 @@ class Puzzle
         colJiggle[this.col].fill(0);
 
         const ANGLE = 90 * Math.PI / 180;
-        const DIST = 0.5;
+        const DIST = .5;
 
         let p1x, p1y, p2x, p2y;
 
@@ -189,9 +187,9 @@ class Puzzle
                     path.style.filter = "brightness(1)";
                     this.movingPuzzle = path;
                     let tile = path.getBoundingClientRect();
-                    let { x, y } = this.svg.getBoundingClientRect();
-                    this.offsetX = ((e.clientX - x) / tile[ "width" ]) + this.strokeWidth - path.offsetX;
-                    this.offsetY = ((e.clientY - y) / tile[ "height" ]) + this.strokeWidth - path.offsetY;
+                    let { x, y, width, height } = this.svg.getBoundingClientRect();
+                    this.offsetX = ( e.clientX / width  ) * this.ViewBox.width  + this.ViewBox.x + this.strokeWidth - path.offsetX;
+                    this.offsetY = ( e.clientY / height ) * this.ViewBox.height + this.ViewBox.y + this.strokeWidth - path.offsetY;
                     this.svg.appendChild(path);
                 };
                 path.onmouseout = (e) =>

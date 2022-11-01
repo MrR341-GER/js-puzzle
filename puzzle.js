@@ -91,7 +91,7 @@ class Puzzle
             <rect x="0" y="0" height="1" width="1" / >
         </clipPath>
         <pattern id="img1" patternUnits="userSpaceOnUse" width="${this.col}" height="${this.row}">
-            <image href="${this.image.src}" x="0" y="0"  width="${this.col}" height="${this.row}"></image>
+            <image href="${this.image.src}" x="0" y="0"  width="${this.col}" height="${this.row}" preserveAspectRatio="xMidYMid slice"></image>
         </pattern>`;
         this.svg.appendChild(defs);
         for (let y = 0; y < this.row; y++)

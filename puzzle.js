@@ -1,7 +1,8 @@
 class Tile {
     constructor({ y, x }) {
         this.arrayPosition = { y, x };
-        this.position = null;
+        // hideerrorposition
+        this.position = {"x": 0,"y": 0}//null;
         this.htmlObject = null;
         this.tileRight = null;
         this.tileDown = null;
@@ -33,21 +34,25 @@ class Tile {
 
     checkSnap(tilesArray) {
         var closestTile = null;
-        var closestDistance = null;
+        var closestDistance = Number.POSITIVE_INFINITY;
         tilesArray.forEach(row => {
             row.forEach(tile => {
                 var distance = Math.sqrt(((this.position.x - tile.position.x) ** 2) + ((this.position.y - tile.position.y) ** 2));
+                //console.log(this.position.x);
                 if (distance < closestDistance) {
                     closestTile = tile;
                     closestDistance = distance;
+                } else if (distance == closestDistance && Math.random() > 0.5) {
+                    closestTile = tile;
                 }
-                console.log(closestTile);
             });
-            this.connectTiles(closestTile);
         });
+        console.log(closestTile);
+        this.connectTiles(closestTile);
     }
 
     connectTiles(tile) {
+        //console.log(this);
         var x = (this.position.x - tile.position.x > 0) ? tile.position.x - (tile.width / 2) : tile.position.x + (tile.width / 2);
         var y = (this.position.y - tile.position.x > 0) ? tile.position.y - (tile.height / 2) : tile.position.y + (tile.height / 2);
         var new_position = { y, x }

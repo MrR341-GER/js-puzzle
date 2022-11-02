@@ -5,10 +5,12 @@ class Tile {
         this.position = { "x": 0, "y": 0 }//null;
         this.htmlObject = null;
         this.tileRight = null;
-        this.tileDown = null;
+        this.tileBelow = null;
         this.tileLeft = null;
-        this.tileUp = null;
-        this.connectedTiles = [null, null, null, null]
+        this.tileOver = null;
+        this.snappedX = 0;
+        this.snappedY = 0;
+        this.connectedTiles = { "left": null, "below": null, "right": null, "over": null }
     }
     calculateNeighbors(array1) {
         if (typeof array1[this.arrayPosition.y][this.arrayPosition.x + 1] != "undefined") {
@@ -19,12 +21,12 @@ class Tile {
         }
         if (typeof array1[this.arrayPosition.y + 1] != "undefined") {
             if (typeof array1[this.arrayPosition.y + 1][this.arrayPosition.x] != "undefined") {
-                this.tileDown = array1[this.arrayPosition.y + 1][this.arrayPosition.x];
+                this.tileBelow = array1[this.arrayPosition.y + 1][this.arrayPosition.x];
             }
         }
         if (typeof array1[this.arrayPosition.y - 1] != "undefined") {
             if (typeof array1[this.arrayPosition.y - 1][this.arrayPosition.x] != "undefined") {
-                this.tileUp = array1[this.arrayPosition.y - 1][this.arrayPosition.x];
+                this.tileOver = array1[this.arrayPosition.y - 1][this.arrayPosition.x];
             }
         }
     }
@@ -34,11 +36,14 @@ class Tile {
 
     checkSnap(tilesArray) {
         var closestTile = null;
-        var closestDistance = Number.POSITIVE_INFINITY;
+        var closestDistance = Number.MAX_VALUE;
         var accuracy = 0.9;
+        this.snappedX = 0;
+        this.snappedY = 0;
         tilesArray.forEach(row => {
             row.forEach(tile => {
                 if (this != tile) {
+
                     var distance = Math.sqrt(((this.position.x - tile.position.x) ** 2) + ((this.position.y - tile.position.y) ** 2));
 
                     // console.log(this.position.x);
@@ -51,24 +56,25 @@ class Tile {
                             closestTile = tile;
                             closestDistance = distance;
                         }
+                        else if (distance == closestDistance && Math.random() > 0.5) {
+                            console.log("unlikely");
+                            closestTile = tile;
+                        }
                     }
-                    // else if (distance == closestDistance && Math.random() > 0.5) {
-                    //     console.log("unlikely");
-                    //     closestTile = tile;
-                    // }
                 }
             });
         });
 
         if (closestDistance <= (2 - accuracy) && closestDistance >= accuracy) {
-            console.log(closestDistance);
-            console.log("connecting");
+            // console.log(closestDistance);
+            // console.log("connecting");
             //console.log("closest:");
             //console.log(closestDistance);
             this.connectTiles(closestTile, accuracy);
         } else {
-            console.log(closestDistance <= (2 - accuracy));
-            console.log(closestDistance >= accuracy);
+
+            // console.log(closestDistance <= (2 - accuracy));
+            // console.log(closestDistance >= accuracy);
         }
 
     }
@@ -77,26 +83,50 @@ class Tile {
         var isLeft = (tile.position.x - this.position.x > accuracy)
         var isBelow = (this.position.y - tile.position.y > accuracy)
         var isRight = (this.position.x - tile.position.x > accuracy)
-        var isUp = (tile.position.y - this.position.y > accuracy);
+        var isOver = (tile.position.y - this.position.y > accuracy);
         var x = 0;
         var y = 0;
         var allGood = true;
         switch (true) {
-            case (isLeft && !isBelow && !isRight && !isUp):
+            case (isLeft && !isBelow && !isRight && !isOver):
                 x = tile.position.x - 1;
                 y = tile.position.y;
+                tile.connectedTiles.left = this;
+                this.connectedTiles.right = tile;
+                console.log(-(this.position.x - tile.position.x + 1));
+                console.log(-(this.position.y - tile.position.y));
+                this.snappedX = -(this.position.x - tile.position.x + 1);
+                this.snappedY = -(this.position.y - tile.position.y);
                 break;
-            case (!isLeft && isBelow && !isRight && !isUp):
+            case (!isLeft && isBelow && !isRight && !isOver):
                 x = tile.position.x;
                 y = tile.position.y + 1;
+                tile.connectedTiles.below = this;
+                this.connectedTiles.over = tile;
+                console.log(-(this.position.x - tile.position.x));
+                console.log(-(this.position.y - tile.position.y - 1));
+                this.snappedX = -(this.position.x - tile.position.x);
+                this.snappedY = -(this.position.y - tile.position.y - 1);
                 break;
-            case (!isLeft && !isBelow && isRight && !isUp):
+            case (!isLeft && !isBelow && isRight && !isOver):
                 x = tile.position.x + 1;
                 y = tile.position.y;
+                tile.connectedTiles.right = this;
+                this.connectedTiles.left = tile;
+                console.log(-(this.position.x - tile.position.x - 1));
+                console.log(-(this.position.y - tile.position.y));
+                this.snappedX = -(this.position.x - tile.position.x - 1);
+                this.snappedY = -(this.position.y - tile.position.y);
                 break;
-            case (!isLeft && !isBelow && !isRight && isUp):
+            case (!isLeft && !isBelow && !isRight && isOver):
                 x = tile.position.x;
                 y = tile.position.y - 1;
+                tile.connectedTiles.over = this;
+                this.connectedTiles.below = tile;
+                console.log(-(this.position.x - tile.position.x));
+                console.log(-(this.position.y - tile.position.y + 1));
+                this.snappedX = -(this.position.x - tile.position.x);
+                this.snappedY = -(this.position.y - tile.position.y + 1);
                 break;
             default:
                 console.log("something went wrong");
@@ -104,15 +134,17 @@ class Tile {
                 console.log(isLeft);
                 console.log(isBelow);
                 console.log(isRight);
-                console.log(isUp);
+                console.log(isOver);
                 break;
         }
         if (allGood) {
+
+console.log(this.connectedTiles);
             // Beim snapping wird der weg bis zum snapping nicht verrechnet (Stelle unbekannt)
             // Wenn man mit der Maus das Tile nach dem snappen wieder aufnimmt, ohne die Maus zu bewegen,
             // bewegt sich das Tile wieder an die Stelle zurück bevor es ran gesnapt ist
-            this.htmlObject.setAttribute("transform", `translate(${(x - .5) - this.arrayPosition.x} ${(y - .5) - this.arrayPosition.y})`);;
             this.changePosition(x, y);
+            this.htmlObject.setAttribute("transform", `translate(${(x - .5) - this.arrayPosition.x} ${(y - .5) - this.arrayPosition.y})`);;
         }
     }
 
@@ -139,21 +171,21 @@ class Tile {
         //         throw tile.arrayPosition;
         //     }
         // }
-        // if (this.tileUp) {
-        //     if (tile.arrayPosition == this.tileUp.arrayPosition) {
-        //         console.log("has Up Tile");
+        // if (this.tileOver) {
+        //     if (tile.arrayPosition == this.tileOver.arrayPosition) {
+        //         console.log("has Over Tile");
         //     } else {
         //         check = false;
-        //         console.log("Up");
+        //         console.log("Over");
         //         throw tile.arrayPosition;
         //     }
         // }
-        // if (this.tileDown) {
-        //     if (tile.arrayPosition == this.tileDown.arrayPosition) {
-        //         console.log("has Down Tile");
+        // if (this.tileBelow) {
+        //     if (tile.arrayPosition == this.tileBelow.arrayPosition) {
+        //         console.log("has Below Tile");
         //     } else {
         //         check = false;
-        //         console.log("Down");
+        //         console.log("Below");
         //         throw tile.arrayPosition;
         //     }
         // }
@@ -177,21 +209,21 @@ class Tile {
         //                 throw tile.arrayPosition;
         //             }
         //         }
-        //         if (this.tileUp) {
-        //             if (tile.arrayPosition == this.tileUp.arrayPosition) {
-        //                 console.log("has Up Tile");
+        //         if (this.tileOver) {
+        //             if (tile.arrayPosition == this.tileOver.arrayPosition) {
+        //                 console.log("has Over Tile");
         //             } else {
         //                 check = false;
-        //                 console.log("Up");
+        //                 console.log("Over");
         //                 throw tile.arrayPosition;
         //             }
         //         }
-        //         if (this.tileDown) {
-        //             if (tile.arrayPosition == this.tileDown.arrayPosition) {
-        //                 console.log("has Down Tile");
+        //         if (this.tileBelow) {
+        //             if (tile.arrayPosition == this.tileBelow.arrayPosition) {
+        //                 console.log("has Below Tile");
         //             } else {
         //                 check = false;
-        //                 console.log("Down");
+        //                 console.log("Below");
         //                 throw tile.arrayPosition;
         //             }
         //         }
@@ -310,8 +342,8 @@ class Puzzle {
             if (this.movingPuzzle) {
                 let tile = this.movingPuzzle.htmlObject.getBoundingClientRect();
                 let { x, y, width, height } = this.svg.getBoundingClientRect();
-                let relativeX = (e.clientX / width) * this.ViewBox.width + this.ViewBox.x - this.offsetX;
-                let relativeY = (e.clientY / height) * this.ViewBox.height + this.ViewBox.y - this.offsetY;
+                let relativeX = (e.clientX / width)  * this.ViewBox.width  + this.ViewBox.x - this.offsetX + this.movingPuzzle.snappedX;
+                let relativeY = (e.clientY / height) * this.ViewBox.height + this.ViewBox.y - this.offsetY + this.movingPuzzle.snappedY;
                 var X_OFFSET_COORDS = this.ViewBox.x;
                 var Y_OFFSET_COORDS = this.ViewBox.y;
                 var X_RANGE_COORDS = this.ViewBox.width;
@@ -348,7 +380,7 @@ class Puzzle {
         rowJiggle[this.row].fill(0);
         colJiggle[0].fill(0);
         colJiggle[this.col].fill(0);
-        const ANGLE = 0 * Math.PI / 180;
+        const ANGLE = 45 * Math.PI / 180;
         const DIST = .5;
         let p1x, p1y, p2x, p2y;
         for (let y = 0; y < this.row; y++) {
@@ -402,8 +434,8 @@ class Puzzle {
                     this.movingPuzzle = this.tilesArray[y][x];
                     let tile = path.getBoundingClientRect();
                     let svgBCR = this.svg.getBoundingClientRect();
-                    this.offsetX = (e.clientX / svgBCR.width) * this.ViewBox.width + this.ViewBox.x - path.offsetX;
-                    this.offsetY = (e.clientY / svgBCR.height) * this.ViewBox.height + this.ViewBox.y - path.offsetY;
+                    this.offsetX = ((e.clientX / svgBCR.width)  * this.ViewBox.width)  + this.ViewBox.x - path.offsetX;
+                    this.offsetY = ((e.clientY / svgBCR.height) * this.ViewBox.height) + this.ViewBox.y - path.offsetY;
                     this.svg.appendChild(path);
                 };
                 path.onmouseout = (e) => {

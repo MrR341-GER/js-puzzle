@@ -1,7 +1,10 @@
-class Puzzle {
-    constructor(row, col, strokeWidth, imagePath) {
+class Puzzle
+{
+    constructor (row, col, strokeWidth, imagePath)
+    {
         this.row = row;
         this.col = col;
+        this.firstRender = true;
         this.greater = null;
         this.strokeWidth = strokeWidth;
         this.image = new Image();
@@ -9,16 +12,21 @@ class Puzzle {
         this.offsetX = 0;
         this.offsetY = 0;
         this.ratio = null
+        this.fixedHeight = 0;
         this.movingPuzzle = null;
         this.svg = null;
         this.ViewBox = null;
         this.tilesArray = [];
         this.unique = false;
-        this.image.onload = () => {
+        this.image.onload = () =>
+        {
             this.svg = this.createSVG();
             document.getElementById("puzzle".toLowerCase()).appendChild(this.svg);
-            document.onmouseup = () => {
-                if (this.movingPuzzle) {
+
+            document.onmouseup = () =>
+            {
+                if (this.movingPuzzle)
+                {
                     this.movingPuzzle.htmlObject.style.filter = "brightness(0.8)";
                     this.movingPuzzle.checkSnap(this.tilesArray);
                     this.movingPuzzle = null;
@@ -27,17 +35,29 @@ class Puzzle {
         }
     }
 
-    handleResize({ x, y, width, height }) {
+    handleResize({ x, y, width, height })
+    {
         const padding = 1;
-
         width += padding * 2;
         height += padding * 2;
         x -= padding;
         y -= padding;
 
+        if (this.firstRender)
+        {
+            var ratioNeeded = window.innerWidth / window.innerHeight;
+            this.firstRender = false;
+            this.secondRender = true;
+        } else
+        {
+            if (this.secondRender)
+            {
+                this.height = document.getElementById("puzzle").offsetHeight;
+                this.secondRender = false;
+            }
+            var ratioNeeded = document.getElementById("puzzle").offsetWidth / this.height;
+        }
         const ratio = width / height;
-        const ratioNeeded = window.innerWidth / window.innerHeight;
-
         this.ViewBox = ratioNeeded > ratio ? {
             "width": height * ratioNeeded,
             "height": height,
@@ -50,22 +70,29 @@ class Puzzle {
             "y": (height - width / ratioNeeded) / 2 - padding
         }
 
+
         return this.ViewBox;
     }
 
-    createSVG() {
-        if (this.row == 0 || this.col == 0) {
-            if (this.row == 0 && this.col == 0) {
+    createSVG()
+    {
+        if (this.row == 0 || this.col == 0)
+        {
+            if (this.row == 0 && this.col == 0)
+            {
                 this.col = 10;
                 this.row = 10;
                 this.greater = this.row;
-            } else {
+            } else
+            {
                 this.greater = this.col > this.row ? this.col : this.row;
             }
-            if (this.image.width < this.image.height) {
+            if (this.image.width < this.image.height)
+            {
                 this.col = Math.round(this.image.width / (this.image.height / this.greater));
                 this.row = this.greater
-            } else {
+            } else
+            {
                 this.row = Math.round(this.image.height / (this.image.width / this.greater));
                 this.col = this.greater;
             }
@@ -79,7 +106,7 @@ class Puzzle {
 
 
         this.svg.setAttribute('xmlns', NS);
-        this.svg.setAttribute('viewBox', `${newViewBox["x"]} ${newViewBox["y"]} ${newViewBox["width"]} ${newViewBox["height"]}`);
+        this.svg.setAttribute('viewBox', `${newViewBox[ "x" ]} ${newViewBox[ "y" ]} ${newViewBox[ "width" ]} ${newViewBox[ "height" ]}`);
         var style = document.createElementNS(NS, 'style');
         style.innerHTML = `path{stroke:grey;}`;
         this.svg.appendChild(style);
@@ -95,8 +122,11 @@ class Puzzle {
 
         this.createPaths(NS, defs);
 
-        document.onmousemove = (e) => {
-            if (this.movingPuzzle) {
+        document.onmousemove = (e) =>
+        {
+            if (this.movingPuzzle)
+            {
+                this.movingPuzzle.connectedTiles = { "left": null, "below": null, "right": null, "over": null };
                 let tile = this.movingPuzzle.htmlObject.getBoundingClientRect();
                 let { x, y, width, height } = this.svg.getBoundingClientRect();
                 let relativeX = (e.clientX / width) * this.ViewBox.width + this.ViewBox.x - this.offsetX + this.movingPuzzle.snappedX;
@@ -123,56 +153,62 @@ class Puzzle {
                 this.movingPuzzle.htmlObject.offsetY = relativeY
             }
         }
-        window.onresize = (e) => {
+        window.onresize = (e) =>
+        {
             newViewBox = this.handleResize(neededViewBox);
-            this.svg.setAttribute('viewBox', `${newViewBox["x"]} ${newViewBox["y"]} ${newViewBox["width"]} ${newViewBox["height"]}`);
+            this.svg.setAttribute('viewBox', `${newViewBox[ "x" ]} ${newViewBox[ "y" ]} ${newViewBox[ "width" ]} ${newViewBox[ "height" ]}`);
         };
+
         return this.svg;
     }
     // relative Position der Maus zum linken oberen Eck der Kachel + relativer Abstand zu 0,0 im K-System im Ausgangszustand
-    createPaths(NS, defs) {
+    createPaths(NS, defs)
+    {
         let rowJiggle = new Array(this.row + 1).fill(0).map(v => new Array(this.col + 1).fill(0).map(v => Math.random() - .5));
         let colJiggle = new Array(this.col + 1).fill(0).map(v => new Array(this.row + 1).fill(0).map(v => Math.random() - .5));
         let unique = false;
-        rowJiggle[0].fill(0);
-        rowJiggle[this.row].fill(0);
-        colJiggle[0].fill(0);
-        colJiggle[this.col].fill(0);
+        rowJiggle[ 0 ].fill(0);
+        rowJiggle[ this.row ].fill(0);
+        colJiggle[ 0 ].fill(0);
+        colJiggle[ this.col ].fill(0);
         const ANGLE = 0 * Math.PI / 180;
-        if (ANGLE != 0) {
+        if (ANGLE != 0)
+        {
             unique = true;
         }
         const DIST = .5;
         let p1x, p1y, p2x, p2y;
-        for (let y = 0; y < this.row; y++) {
-            this.tilesArray[y] = [];
-            for (let x = 0; x < this.col; x++) {
-                this.tilesArray[y][x] = new Tile({ y, x }, unique);
-                this.tilesArray[y][x].changePosition((x + 0.5), (y + 0.5));
+        for (let y = 0; y < this.row; y++)
+        {
+            this.tilesArray[ y ] = [];
+            for (let x = 0; x < this.col; x++)
+            {
+                this.tilesArray[ y ][ x ] = new Tile({ y, x }, unique);
+                this.tilesArray[ y ][ x ].changePosition((x + 0.5), (y + 0.5));
                 let path = document.createElementNS(NS, 'path');
 
-                p1x = Math.cos(ANGLE * rowJiggle[y][x]) * DIST
-                p1y = Math.sin(ANGLE * rowJiggle[y][x]) * DIST
-                p2x = Math.cos(ANGLE * rowJiggle[y][x + 1] + Math.PI) * DIST + 1
-                p2y = Math.sin(ANGLE * rowJiggle[y][x + 1] + Math.PI) * DIST
+                p1x = Math.cos(ANGLE * rowJiggle[ y ][ x ]) * DIST
+                p1y = Math.sin(ANGLE * rowJiggle[ y ][ x ]) * DIST
+                p2x = Math.cos(ANGLE * rowJiggle[ y ][ x + 1 ] + Math.PI) * DIST + 1
+                p2y = Math.sin(ANGLE * rowJiggle[ y ][ x + 1 ] + Math.PI) * DIST
                 let topRow = `c ${p1x} ${p1y} ${p2x} ${p2y} 1 0`;
 
-                p1x = Math.cos(ANGLE * rowJiggle[y + 1][x + 1] + Math.PI) * DIST
-                p1y = Math.sin(ANGLE * rowJiggle[y + 1][x + 1] + Math.PI) * DIST
-                p2x = Math.cos(ANGLE * rowJiggle[y + 1][x]) * DIST - 1
-                p2y = Math.sin(ANGLE * rowJiggle[y + 1][x]) * DIST
+                p1x = Math.cos(ANGLE * rowJiggle[ y + 1 ][ x + 1 ] + Math.PI) * DIST
+                p1y = Math.sin(ANGLE * rowJiggle[ y + 1 ][ x + 1 ] + Math.PI) * DIST
+                p2x = Math.cos(ANGLE * rowJiggle[ y + 1 ][ x ]) * DIST - 1
+                p2y = Math.sin(ANGLE * rowJiggle[ y + 1 ][ x ]) * DIST
                 let bottomRow = `c ${p1x} ${p1y} ${p2x} ${p2y} -1 0`;
 
-                p1x = Math.cos(ANGLE * colJiggle[x][y + 1] - Math.PI / 2) * DIST
-                p1y = Math.sin(ANGLE * colJiggle[x][y + 1] - Math.PI / 2) * DIST
-                p2x = Math.cos(ANGLE * colJiggle[x][y] + Math.PI / 2) * DIST
-                p2y = Math.sin(ANGLE * colJiggle[x][y] + Math.PI / 2) * DIST - 1
+                p1x = Math.cos(ANGLE * colJiggle[ x ][ y + 1 ] - Math.PI / 2) * DIST
+                p1y = Math.sin(ANGLE * colJiggle[ x ][ y + 1 ] - Math.PI / 2) * DIST
+                p2x = Math.cos(ANGLE * colJiggle[ x ][ y ] + Math.PI / 2) * DIST
+                p2y = Math.sin(ANGLE * colJiggle[ x ][ y ] + Math.PI / 2) * DIST - 1
                 let leftRow = `c ${p1x} ${p1y} ${p2x} ${p2y} 0 -1`;
 
-                p1x = Math.cos(ANGLE * colJiggle[x + 1][y] + Math.PI / 2) * DIST
-                p1y = Math.sin(ANGLE * colJiggle[x + 1][y] + Math.PI / 2) * DIST
-                p2x = Math.cos(ANGLE * colJiggle[x + 1][y + 1] - Math.PI / 2) * DIST
-                p2y = Math.sin(ANGLE * colJiggle[x + 1][y + 1] - Math.PI / 2) * DIST + 1
+                p1x = Math.cos(ANGLE * colJiggle[ x + 1 ][ y ] + Math.PI / 2) * DIST
+                p1y = Math.sin(ANGLE * colJiggle[ x + 1 ][ y ] + Math.PI / 2) * DIST
+                p2x = Math.cos(ANGLE * colJiggle[ x + 1 ][ y + 1 ] - Math.PI / 2) * DIST
+                p2y = Math.sin(ANGLE * colJiggle[ x + 1 ][ y + 1 ] - Math.PI / 2) * DIST + 1
                 let rightRow = `c ${p1x} ${p1y} ${p2x} ${p2y} 0 1`;
 
                 path.setAttribute("d", `M ${x} ${y} ${topRow} ${rightRow} ${bottomRow} ${leftRow}`);
@@ -189,36 +225,50 @@ class Puzzle {
 
                 path.offsetX = 0;
                 path.offsetY = 0;
-                this.tilesArray[y][x].setHtmlObject(path);;
-                path.onmousedown = (e) => {
+                this.tilesArray[ y ][ x ].setHtmlObject(path);;
+                path.onmousedown = (e) =>
+                {
                     path.style.filter = "brightness(1)";
-                    this.movingPuzzle = this.tilesArray[y][x];
+                    this.movingPuzzle = this.tilesArray[ y ][ x ];
+                    for (const key in this.movingPuzzle.connectedTiles) {
+                        if (Object.hasOwnProperty.call(this.movingPuzzle.connectedTiles, key)) {
+                            const element = this.movingPuzzle.connectedTiles[key];
+                            console.log(element);
+                            // Remove Association MARKER
+                        }
+                    }
                     let tile = path.getBoundingClientRect();
                     let svgBCR = this.svg.getBoundingClientRect();
                     this.offsetX = ((e.clientX / svgBCR.width) * this.ViewBox.width) + this.ViewBox.x - path.offsetX;
                     this.offsetY = ((e.clientY / svgBCR.height) * this.ViewBox.height) + this.ViewBox.y - path.offsetY;
                     this.svg.appendChild(path);
                 };
-                path.onmouseout = (e) => {
+                path.onmouseout = (e) =>
+                {
                     path.style.filter = "brightness(1)";
                 }
-                path.onmouseover = (e) => {
+                path.onmouseover = (e) =>
+                {
                     path.style.filter = "brightness(0.8)";
                 }
                 this.svg.appendChild(path);
-                this.tilesArray[y][x].setHtmlObject(path);
+                this.tilesArray[ y ][ x ].setHtmlObject(path);
             }
         }
-        this.tilesArray.forEach(row => {
-            row.forEach(tile => {
+        this.tilesArray.forEach(row =>
+        {
+            row.forEach(tile =>
+            {
                 tile.calculateNeighbors(this.tilesArray)
             });
         });
         console.log(this.tilesArray);
     }
 }
-class Tile {
-    constructor({ y, x }, unique = false) {
+class Tile
+{
+    constructor ({ y, x }, unique = false)
+    {
         this.arrayPosition = { y, x };
         this.unique = unique;
         // hideerrorposition
@@ -229,37 +279,49 @@ class Tile {
         this.neighbors = { "left": null, "below": null, "right": null, "over": null }
         this.connectedTiles = { "left": null, "below": null, "right": null, "over": null }
     }
-    calculateNeighbors(array1) {
-        if (typeof array1[this.arrayPosition.y][this.arrayPosition.x + 1] != "undefined") {
-            this.neighbors.right = array1[this.arrayPosition.y][this.arrayPosition.x + 1];
+    calculateNeighbors(array1)
+    {
+        if (typeof array1[ this.arrayPosition.y ][ this.arrayPosition.x + 1 ] != "undefined")
+        {
+            this.neighbors.right = array1[ this.arrayPosition.y ][ this.arrayPosition.x + 1 ];
         }
-        if (typeof array1[this.arrayPosition.y][this.arrayPosition.x - 1] != "undefined") {
-            this.neighbors.left = array1[this.arrayPosition.y][this.arrayPosition.x - 1];
+        if (typeof array1[ this.arrayPosition.y ][ this.arrayPosition.x - 1 ] != "undefined")
+        {
+            this.neighbors.left = array1[ this.arrayPosition.y ][ this.arrayPosition.x - 1 ];
         }
-        if (typeof array1[this.arrayPosition.y + 1] != "undefined") {
-            if (typeof array1[this.arrayPosition.y + 1][this.arrayPosition.x] != "undefined") {
-                this.neighbors.below = array1[this.arrayPosition.y + 1][this.arrayPosition.x];
+        if (typeof array1[ this.arrayPosition.y + 1 ] != "undefined")
+        {
+            if (typeof array1[ this.arrayPosition.y + 1 ][ this.arrayPosition.x ] != "undefined")
+            {
+                this.neighbors.below = array1[ this.arrayPosition.y + 1 ][ this.arrayPosition.x ];
             }
         }
-        if (typeof array1[this.arrayPosition.y - 1] != "undefined") {
-            if (typeof array1[this.arrayPosition.y - 1][this.arrayPosition.x] != "undefined") {
-                this.neighbors.Over = array1[this.arrayPosition.y - 1][this.arrayPosition.x];
+        if (typeof array1[ this.arrayPosition.y - 1 ] != "undefined")
+        {
+            if (typeof array1[ this.arrayPosition.y - 1 ][ this.arrayPosition.x ] != "undefined")
+            {
+                this.neighbors.Over = array1[ this.arrayPosition.y - 1 ][ this.arrayPosition.x ];
             }
         }
     }
-    setHtmlObject(htmlObject) {
+    setHtmlObject(htmlObject)
+    {
         this.htmlObject = htmlObject;
     }
 
-    checkSnap(tilesArray) {
+    checkSnap(tilesArray)
+    {
         var closestTile = null;
         var closestDistance = Number.MAX_VALUE;
         var accuracy = 0.9;
         this.snappedX = 0;
         this.snappedY = 0;
-        tilesArray.forEach(row => {
-            row.forEach(tile => {
-                if (this != tile) {
+        tilesArray.forEach(row =>
+        {
+            row.forEach(tile =>
+            {
+                if (this != tile)
+                {
 
                     var distance = Math.sqrt(((this.position.x - tile.position.x) ** 2) + ((this.position.y - tile.position.y) ** 2));
 
@@ -268,12 +330,15 @@ class Tile {
                     // console.log(tile.position.x);
                     // console.log(tile.position.y);
                     //console.log(closestDistance);
-                    if (distance <= (2 - accuracy) && distance >= accuracy) {
-                        if (distance < closestDistance) {
+                    if (distance <= (2 - accuracy) && distance >= accuracy)
+                    {
+                        if (distance < closestDistance)
+                        {
                             closestTile = tile;
                             closestDistance = distance;
                         }
-                        else if (distance == closestDistance && Math.random() > 0.5) {
+                        else if (distance == closestDistance && Math.random() > 0.5)
+                        {
                             console.log("unlikely");
                             closestTile = tile;
                         }
@@ -282,30 +347,37 @@ class Tile {
             });
         });
 
-        if (closestDistance <= (2 - accuracy) && closestDistance >= accuracy) {
-            if (this.unique) {
+        if (closestDistance <= (2 - accuracy) && closestDistance >= accuracy)
+        {
+            if (this.unique)
+            {
                 var isLeft = (closestTile.position.x - this.position.x > accuracy);
                 var isBelow = (this.position.y - closestTile.position.y > accuracy);
                 var isRight = (this.position.x - closestTile.position.x > accuracy);
                 var isOver = (closestTile.position.y - this.position.y > accuracy);
-                switch (true) {
+                switch (true)
+                {
                     case (isLeft && !isBelow && !isRight && !isOver):
-                        if (this == closestTile.neighbors.left) {
+                        if (this == closestTile.neighbors.left)
+                        {
                             this.connectTiles(closestTile, accuracy);
                         }
                         break;
                     case (!isLeft && isBelow && !isRight && !isOver):
-                        if (this == closestTile.neighbors.below) {
+                        if (this == closestTile.neighbors.below)
+                        {
                             this.connectTiles(closestTile, accuracy);
                         }
                         break;
                     case (!isLeft && !isBelow && isRight && !isOver):
-                        if (this == closestTile.neighbors.right) {
+                        if (this == closestTile.neighbors.right)
+                        {
                             this.connectTiles(closestTile, accuracy);
                         }
                         break;
                     case (!isLeft && !isBelow && !isRight && isOver):
-                        if (this == closestTile.neighbors.over) {
+                        if (this == closestTile.neighbors.over)
+                        {
                             this.connectTiles(closestTile, accuracy);
                         }
                         break;
@@ -319,10 +391,12 @@ class Tile {
                         break;
                 }
 
-            } else {
+            } else
+            {
                 this.connectTiles(closestTile, accuracy);
             }
-        } else {
+        } else
+        {
 
             // console.log(closestDistance <= (2 - accuracy));
             // console.log(closestDistance >= accuracy);
@@ -330,7 +404,8 @@ class Tile {
 
     }
 
-    connectTiles(tile, accuracy) {
+    connectTiles(tile, accuracy)
+    {
         var isLeft = (tile.position.x - this.position.x > accuracy)
         var isBelow = (this.position.y - tile.position.y > accuracy)
         var isRight = (this.position.x - tile.position.x > accuracy)
@@ -348,38 +423,67 @@ class Tile {
         var tileBelow = tile.connectedTiles.below;
         var tileRight = tile.connectedTiles.right;
         var tileOver = tile.connectedTiles.over;
-        switch (true) {
+        switch (true)
+        {
             case (isLeft && !isBelow && !isRight && !isOver):
-                x = tile.position.x - 1;
-                y = tile.position.y;
-                tileLeft = this;
-                thisRight = tile;
-                snappedX = -(this.position.x - tile.position.x + 1);
-                snappedY = -(this.position.y - tile.position.y);
+                if (tile.connectedTiles.left)
+                {
+                    console.log("already connected tile");
+                    allGood = false;
+                } else
+                {
+                    x = tile.position.x - 1;
+                    y = tile.position.y;
+                    tileLeft = this;
+                    thisRight = tile;
+                    snappedX = -(this.position.x - tile.position.x + 1);
+                    snappedY = -(this.position.y - tile.position.y);
+                }
                 break;
             case (!isLeft && isBelow && !isRight && !isOver):
-                x = tile.position.x;
-                y = tile.position.y + 1;
-                tileBelow = this;
-                thisOver = tile;
-                snappedX = -(this.position.x - tile.position.x);
-                snappedY = -(this.position.y - tile.position.y - 1);
+                if (tile.connectedTiles.below)
+                {
+                    console.log("already connected tile");
+                    allGood = false;
+                } else
+                {
+                    x = tile.position.x;
+                    y = tile.position.y + 1;
+                    tileBelow = this;
+                    thisOver = tile;
+                    snappedX = -(this.position.x - tile.position.x);
+                    snappedY = -(this.position.y - tile.position.y - 1);
+                }
                 break;
             case (!isLeft && !isBelow && isRight && !isOver):
-                x = tile.position.x + 1;
-                y = tile.position.y;
-                tileRight = this;
-                thisLeft = tile;
-                snappedX = -(this.position.x - tile.position.x - 1);
-                snappedY = -(this.position.y - tile.position.y);
+                if (tile.connectedTiles.right)
+                {
+                    console.log("already connected tile");
+                    allGood = false;
+                } else
+                {
+                    x = tile.position.x + 1;
+                    y = tile.position.y;
+                    tileRight = this;
+                    thisLeft = tile;
+                    snappedX = -(this.position.x - tile.position.x - 1);
+                    snappedY = -(this.position.y - tile.position.y);
+                }
                 break;
             case (!isLeft && !isBelow && !isRight && isOver):
-                x = tile.position.x;
-                y = tile.position.y - 1;
-                tileOver = this;
-                thisBelow = tile;
-                snappedX = -(this.position.x - tile.position.x);
-                snappedY = -(this.position.y - tile.position.y + 1);
+                if (tile.connectedTiles.over)
+                {
+                    console.log("already connected tile");
+                    allGood = false;
+                } else
+                {
+                    x = tile.position.x;
+                    y = tile.position.y - 1;
+                    tileOver = this;
+                    thisBelow = tile;
+                    snappedX = -(this.position.x - tile.position.x);
+                    snappedY = -(this.position.y - tile.position.y + 1);
+                }
                 break;
             default:
                 console.log("something went wrong");
@@ -390,23 +494,30 @@ class Tile {
                 console.log(isOver);
                 break;
         }
-        if (allGood) {
 
-            console.log(this.connectedTiles);
-            // Beim snapping wird der weg bis zum snapping nicht verrechnet (Stelle unbekannt)
-            // Wenn man mit der Maus das Tile nach dem snappen wieder aufnimmt, ohne die Maus zu bewegen,
-            // bewegt sich das Tile wieder an die Stelle zurück bevor es ran gesnapt ist
-
+        if (allGood)
+        {
+            this.connectedTiles.left = thisLeft;
+            this.connectedTiles.below = thisBelow;
+            this.connectedTiles.right = thisRight;
+            this.connectedTiles.over = thisOver;
+            tile.connectedTiles.left = tileLeft;
+            tile.connectedTiles.below = tileBelow;
+            tile.connectedTiles.right = tileRight;
+            tile.connectedTiles.over = tileOver;
+            console.log(tile.connectedTiles);
+            tile.connectedTiles
             this.snappedX = snappedX;
             this.snappedY = snappedY;
             this.changePosition(x, y);
             this.htmlObject.setAttribute("transform", `translate(${(x - .5) - this.arrayPosition.x} ${(y - .5) - this.arrayPosition.y})`);
-
+            document.getElementById("puzzle").firstChild.insertBefore(this.htmlObject, document.getElementById("puzzle").firstChild.firstChild);
 
         }
     }
 
-    checkForNeighbors(tilesArray) {
+    checkForNeighbors(tilesArray)
+    {
         // var check = true;
         // if (this.position == 0) {
 
@@ -491,10 +602,12 @@ class Tile {
         //     console.log("you win!");
         // }
     }
-    debug() {
+    debug()
+    {
         console.log(this);
     }
-    changePosition(x, y) {
+    changePosition(x, y)
+    {
         this.position = { x, y };
     }
 }

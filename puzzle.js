@@ -189,7 +189,7 @@ class Puzzle {
 
                 path.offsetX = 0;
                 path.offsetY = 0;
-                this.tilesArray[y][x].setHtmlObject(path);;
+                this.tilesArray[y][x].setHtmlObject(path);
                 path.onmousedown = (e) => {
                     path.style.filter = "brightness(1)";
                     this.movingPuzzle = this.tilesArray[y][x];

@@ -178,36 +178,37 @@ class Puzzle
         }
         const DIST = .5;
         let p1x, p1y, p2x, p2y;
-        for (let y = 0; y < this.row; y++){
+        for (let y = 0; y < this.row; y++)
+        {
             this.tilesArray[ y ] = [];
             for (let x = 0; x < this.col; x++)
             {
-                this.tilesArray[y][x] = new Tile({ y, x }, unique);
-                this.tilesArray[y][x].changePosition((x + 0.5), (y + 0.5));
+                this.tilesArray[ y ][ x ] = new Tile({ y, x }, unique);
+                this.tilesArray[ y ][ x ].changePosition((x + 0.5), (y + 0.5));
                 let path = document.createElementNS(NS, 'path');
 
-                p1x = Math.cos(ANGLE * rowJiggle[y][x]) * DIST
-                p1y = Math.sin(ANGLE * rowJiggle[y][x]) * DIST
-                p2x = Math.cos(ANGLE * rowJiggle[y][x + 1] + Math.PI) * DIST + 1
-                p2y = Math.sin(ANGLE * rowJiggle[y][x + 1] + Math.PI) * DIST
+                p1x = Math.cos(ANGLE * rowJiggle[ y ][ x ]) * DIST;
+                p1y = Math.sin(ANGLE * rowJiggle[ y ][ x ]) * DIST;
+                p2x = Math.cos(ANGLE * rowJiggle[ y ][ x + 1 ] + Math.PI) * DIST + 1;
+                p2y = Math.sin(ANGLE * rowJiggle[ y ][ x + 1 ] + Math.PI) * DIST;
                 let topRow = `c ${p1x} ${p1y} ${p2x} ${p2y} 1 0`;
 
-                p1x = Math.cos(ANGLE * rowJiggle[y + 1][x + 1] + Math.PI) * DIST
-                p1y = Math.sin(ANGLE * rowJiggle[y + 1][x + 1] + Math.PI) * DIST
-                p2x = Math.cos(ANGLE * rowJiggle[y + 1][x]) * DIST - 1
-                p2y = Math.sin(ANGLE * rowJiggle[y + 1][x]) * DIST
+                p1x = Math.cos(ANGLE * rowJiggle[ y + 1 ][ x + 1 ] + Math.PI) * DIST;
+                p1y = Math.sin(ANGLE * rowJiggle[ y + 1 ][ x + 1 ] + Math.PI) * DIST;
+                p2x = Math.cos(ANGLE * rowJiggle[ y + 1 ][ x ]) * DIST - 1;
+                p2y = Math.sin(ANGLE * rowJiggle[ y + 1 ][ x ]) * DIST;
                 let bottomRow = `c ${p1x} ${p1y} ${p2x} ${p2y} -1 0`;
 
-                p1x = Math.cos(ANGLE * colJiggle[x][y + 1] - Math.PI / 2) * DIST
-                p1y = Math.sin(ANGLE * colJiggle[x][y + 1] - Math.PI / 2) * DIST
-                p2x = Math.cos(ANGLE * colJiggle[x][y] + Math.PI / 2) * DIST
-                p2y = Math.sin(ANGLE * colJiggle[x][y] + Math.PI / 2) * DIST - 1
+                p1x = Math.cos(ANGLE * colJiggle[ x ][ y + 1 ] - Math.PI / 2) * DIST;
+                p1y = Math.sin(ANGLE * colJiggle[ x ][ y + 1 ] - Math.PI / 2) * DIST;
+                p2x = Math.cos(ANGLE * colJiggle[ x ][ y ] + Math.PI / 2) * DIST;
+                p2y = Math.sin(ANGLE * colJiggle[ x ][ y ] + Math.PI / 2) * DIST - 1;
                 let leftRow = `c ${p1x} ${p1y} ${p2x} ${p2y} 0 -1`;
 
-                p1x = Math.cos(ANGLE * colJiggle[x + 1][y] + Math.PI / 2) * DIST
-                p1y = Math.sin(ANGLE * colJiggle[x + 1][y] + Math.PI / 2) * DIST
-                p2x = Math.cos(ANGLE * colJiggle[x + 1][y + 1] - Math.PI / 2) * DIST
-                p2y = Math.sin(ANGLE * colJiggle[x + 1][y + 1] - Math.PI / 2) * DIST + 1
+                p1x = Math.cos(ANGLE * colJiggle[ x + 1 ][ y ] + Math.PI / 2) * DIST;
+                p1y = Math.sin(ANGLE * colJiggle[ x + 1 ][ y ] + Math.PI / 2) * DIST;
+                p2x = Math.cos(ANGLE * colJiggle[ x + 1 ][ y + 1 ] - Math.PI / 2) * DIST;
+                p2y = Math.sin(ANGLE * colJiggle[ x + 1 ][ y + 1 ] - Math.PI / 2) * DIST + 1;
                 let rightRow = `c ${p1x} ${p1y} ${p2x} ${p2y} 0 1`;
 
                 path.setAttribute("d", `M ${x} ${y} ${topRow} ${rightRow} ${bottomRow} ${leftRow}`);
@@ -224,13 +225,15 @@ class Puzzle
 
                 path.offsetX = 0;
                 path.offsetY = 0;
-                this.tilesArray[y][x].setHtmlObject(path);
-                path.onmousedown = (e) => {
+                this.tilesArray[ y ][ x ].setHtmlObject(path);
+                path.onmousedown = (e) =>
+                {
                     path.style.filter = "brightness(1)";
                     this.movingPuzzle = this.tilesArray[ y ][ x ];
                     for (const key in this.movingPuzzle.connectedTiles)
                     {
-                        if (Object.hasOwnProperty.call(this.movingPuzzle.connectedTiles, key))  {
+                        if (Object.hasOwnProperty.call(this.movingPuzzle.connectedTiles, key))
+                        {
                             const element = this.movingPuzzle.connectedTiles[ key ];
                             console.log(element);
                             // Remove Association MARKER
